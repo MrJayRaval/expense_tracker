@@ -1,0 +1,160 @@
+import 'dart:developer';
+
+import 'package:expense_tracker/config/colors.dart';
+import 'package:expense_tracker/ui/components/button.dart';
+import 'package:expense_tracker/ui/components/textbox.dart';
+import 'package:expense_tracker/ui/screens/forget_password.dart';
+import 'package:expense_tracker/ui/screens/registration.dart';
+import 'package:flutter/material.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: bgColor,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(child: FractionallySizedBox(heightFactor: 0.2)),
+              Image.asset('assets/logo.png', scale: 5),
+
+              Text(
+                'Welcome Back!',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+
+              Text(
+                'let\'s manage your money.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+
+              const SizedBox(height: 46),
+
+              Form(
+                key: _formKey,
+
+                child: Column(
+                  children: [
+                    CustTextField(
+                      label: 'Email',
+                      textInputType: TextInputType.emailAddress,
+                      controller: _email,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter Email';
+                        }
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return 'Enter valid email';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    SizedBox(height: 18),
+
+                    CustPasswordField(
+                      autoFocus: true,
+                      label: 'Password',
+                      controller: _password,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter Username';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ForgotPassword(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: BoxBorder.fromLTRB(
+                                bottom: BorderSide(width: 2, color: primaryColor),
+                              ),
+                            ),
+                            child: Text('Forgot Password?', style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 18),
+
+                    CustPrimaryButton(
+                      label: 'Sign In',
+                      function: () {
+                        if (_formKey.currentState!.validate()) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text('Content')));
+                        }
+                      },
+                    ),
+
+                    SizedBox(height: 18,),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Don\'t have any Account? '),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegistrationPage(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: BoxBorder.fromLTRB(
+                                bottom: BorderSide(color: primaryColor, width: 2),
+                              ),
+                            ),
+                            child: Text(
+                              'Sign Up',
+                              style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
