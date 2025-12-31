@@ -1,7 +1,9 @@
+import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
-import 'package:expense_tracker/ui/screens/login.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -15,6 +17,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final _email = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProviderr>();
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -70,11 +74,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         CustPrimaryButton(
                           label: 'Send',
                           function: () {
-                            if (_formKey.currentState!.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Content')),
-                              );
-                            }
+                            context.read<AuthProviderr>().resetPassword(
+                              _email.text.trim(),
+                            );
                           },
                         ),
 

@@ -1,28 +1,32 @@
 import 'package:expense_tracker/config/colors.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
+import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
-import 'package:expense_tracker/ui/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key});
-
-  @override
-  State<RegistrationPage> createState() => _RegistrationPageState();
-}
-
-class _RegistrationPageState extends State<RegistrationPage> {
+class RegistrationPage extends StatelessWidget {
   final _userName = TextEditingController();
+
   final _email = TextEditingController();
+
   final _password = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
+
   final _confirmPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProviderr>();
     return Scaffold(
-      backgroundColor: bgColor,
-      body: Center(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: secondaryColor,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
@@ -32,13 +36,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
                     },
                     icon: Icon(Icons.arrow_back_ios),
                   ),
                 ],
               ),
-              Flexible(child: FractionallySizedBox(heightFactor: 0.2)),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+
               Image.asset('assets/logo.png', scale: 5),
 
               Text(
@@ -96,11 +101,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     const SizedBox(height: 18),
 
                     CustPasswordField(
+                      validator: (value) {
+                        if (_confirmPassword.text != _password.text) {
+                          return "Password doesn't matched!";
+                        }
+                        return null;
+                      },
                       label: 'Confirm Password',
                       controller: _confirmPassword,
+                      textInputType: TextInputType.visiblePassword,
                     ),
 
                     SizedBox(height: 18),
+
+                    if (auth.isLoading) const CircularProgressIndicator(),
+
+                    if (auth.error != null) Text(auth.error!),
 
                     CustPrimaryButton(
                       label: 'Sign Up',
@@ -110,6 +126,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             context,
                           ).showSnackBar(SnackBar(content: Text('Content')));
                         }
+
+                        auth.isLoading
+                            ? ()
+                            : context.read<AuthProviderr>().register(
+                                _email.text.trim(),
+                                _password.text.trim(),
+                              );
                       },
                     ),
                   ],

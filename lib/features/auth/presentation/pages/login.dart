@@ -1,11 +1,11 @@
-import 'dart:developer';
-
 import 'package:expense_tracker/config/colors.dart';
+import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
-import 'package:expense_tracker/ui/screens/forget_password.dart';
-import 'package:expense_tracker/ui/screens/registration.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/forget_password.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/registration.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,8 +21,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProviderr>();
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: secondaryColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -97,10 +98,19 @@ class _LoginPageState extends State<LoginPage> {
                           child: Container(
                             decoration: BoxDecoration(
                               border: BoxBorder.fromLTRB(
-                                bottom: BorderSide(width: 2, color: primaryColor),
+                                bottom: BorderSide(
+                                  width: 2,
+                                  color: primaryColor,
+                                ),
                               ),
                             ),
-                            child: Text('Forgot Password?', style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),),
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -108,18 +118,23 @@ class _LoginPageState extends State<LoginPage> {
 
                     SizedBox(height: 18),
 
+                    if (auth.isLoading) const CircularProgressIndicator(),
+
+                    if (auth.error != null) Text(auth.error!),
+
                     CustPrimaryButton(
                       label: 'Sign In',
                       function: () {
                         if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('Content')));
+                          context.read<AuthProviderr>().logIn(
+                            _email.text.trim(),
+                            _password.text.trim(),
+                          );
                         }
                       },
                     ),
 
-                    SizedBox(height: 18,),
+                    SizedBox(height: 18),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -137,12 +152,18 @@ class _LoginPageState extends State<LoginPage> {
                           child: Container(
                             decoration: BoxDecoration(
                               border: BoxBorder.fromLTRB(
-                                bottom: BorderSide(color: primaryColor, width: 2),
+                                bottom: BorderSide(
+                                  color: primaryColor,
+                                  width: 2,
+                                ),
                               ),
                             ),
                             child: Text(
                               'Sign Up',
-                              style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                              ),
                             ),
                           ),
                         ),

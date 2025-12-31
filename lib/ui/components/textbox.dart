@@ -96,6 +96,7 @@ class _CustPasswordFieldState extends State<CustPasswordField> {
   Widget build(BuildContext context) {
     return SizedBox(
       child: TextFormField(
+        controller: widget.controller,
         obscureText: _obscureText,
         validator: widget.validator,
         decoration: InputDecoration(
