@@ -17,45 +17,56 @@ class AuthProviderr with ChangeNotifier {
     required this.resetPassword,
   });
 
-  Future<void> logIn(String email, String password) async {
+  Future<bool> logIn(String email, String password) async {
     isLoading = true;
     notifyListeners();
 
     try {
       await signIn(email, password);
+      error = null;
+      return true;
     } catch (e) {
       error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    ChangeNotifier();
   }
 
-  Future<void> register(String email, String password) async {
+  Future<bool> register(String email, String password) async {
     isLoading = true;
-    ChangeNotifier();
+    notifyListeners();
 
     try {
       await signUp(email, password);
+      error = null;
+      notifyListeners();
+      return true;
+      
     } catch (e) {
       error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    ChangeNotifier();
   }
 
-  Future<void> resetPasswordLink(String email) async {
+  Future<bool> resetPasswordLink(String email) async {
     isLoading = true;
-    ChangeNotifier();
+    notifyListeners();
 
     try {
       await resetPassword(email);
+      error = null;
+      return true;
     } catch (e) {
       error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    ChangeNotifier();
   }
 }

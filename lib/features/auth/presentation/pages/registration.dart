@@ -1,25 +1,42 @@
 import 'package:expense_tracker/config/colors.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
+import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard.dart';
+import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
+import 'package:expense_tracker/features/create_profile/presentation/provider/profile_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class RegistrationPage extends StatelessWidget {
+class RegistrationPage extends StatefulWidget {
+  const RegistrationPage({super.key});
+
+  @override
+  State<RegistrationPage> createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
   final _userName = TextEditingController();
-
   final _email = TextEditingController();
-
   final _password = TextEditingController();
-
+  final _confirmPassword = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  final _confirmPassword = TextEditingController();
+  @override
+  void dispose() {
+    _userName.dispose();
+    _email.dispose();
+    _password.dispose();
+    _confirmPassword.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProviderr>();
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: secondaryColor,
@@ -36,7 +53,10 @@ class RegistrationPage extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
                     },
                     icon: Icon(Icons.arrow_back_ios),
                   ),
@@ -120,19 +140,51 @@ class RegistrationPage extends StatelessWidget {
 
                     CustPrimaryButton(
                       label: 'Sign Up',
-                      function: () {
+                      function: () async {
                         if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('Content')));
-                        }
-
-                        auth.isLoading
-                            ? ()
-                            : context.read<AuthProviderr>().register(
+                          // call register and wait for the result
+                          final success = await context
+                              .read<AuthProviderr>()
+                              .register(
                                 _email.text.trim(),
                                 _password.text.trim(),
                               );
+
+                          if (success) {
+                            // get the newly created user
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user != null) {
+                              // create profile in Firestore
+                              await context
+                                  .read<ProfileProvider>()
+                                  .createProfile(
+                                    UserProfileModel(
+                                      uid: user.uid,
+                                      name: _userName.text.trim(),
+                                      email: user.email ?? _email.text.trim(),
+                                    ),
+                                  );
+
+                              // navigate to dashboard and remove previous routes
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DashboardPage(),
+                                ),
+                                (route) => false,
+                              );
+                            } else {
+                              // if user is null something went wrong; show error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to get created user.'),
+                                ),
+                              );
+                            }
+                          } else {
+                            // registration failed; error is shown via provider
+                          }
+                        }
                       },
                     ),
                   ],
