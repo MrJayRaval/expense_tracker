@@ -1,7 +1,7 @@
 import 'package:expense_tracker/config/colors.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
-import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard.dart';
+import 'package:expense_tracker/features/dashboard/presentation/screens/homepage.dart';
 import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
 import 'package:expense_tracker/features/create_profile/presentation/provider/profile_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
@@ -168,9 +168,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               // navigate to dashboard and remove previous routes
                               Navigator.pushAndRemoveUntil(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => DashboardPage(),
-                                ),
+                                MaterialPageRoute(builder: (_) => HomePage()),
                                 (route) => false,
                               );
                             } else {
