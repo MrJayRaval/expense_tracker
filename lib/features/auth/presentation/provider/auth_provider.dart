@@ -20,53 +20,58 @@ class AuthProviderr with ChangeNotifier {
   Future<bool> logIn(String email, String password) async {
     isLoading = true;
     notifyListeners();
+    bool success = false;
 
     try {
       await signIn(email, password);
       error = null;
-      return true;
+      success = true;
     } catch (e) {
       error = e.toString();
-      return false;
     } finally {
       isLoading = false;
       notifyListeners();
     }
+
+    return success;
   }
 
   Future<bool> register(String email, String password) async {
     isLoading = true;
     notifyListeners();
 
+    bool success = false;
+
     try {
       await signUp(email, password);
       error = null;
-      notifyListeners();
-      return true;
-      
+      success = true;
     } catch (e) {
       error = e.toString();
-      return false;
     } finally {
       isLoading = false;
       notifyListeners();
     }
+
+    return success;
   }
 
   Future<bool> resetPasswordLink(String email) async {
     isLoading = true;
     notifyListeners();
+    bool success = false;
 
     try {
       await resetPassword(email);
       error = null;
-      return true;
+      success = true;
     } catch (e) {
       error = e.toString();
-      return false;
     } finally {
       isLoading = false;
       notifyListeners();
     }
+
+    return success;
   }
 }

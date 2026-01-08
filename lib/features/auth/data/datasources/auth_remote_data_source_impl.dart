@@ -1,10 +1,11 @@
+import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-abstract class AuthRemoteDataSource {
-  Future<void> signIn(String email, String password);
-  Future<void> signUp(String email, String password);
-  Future<void> resetPassword(String email);
-}
+// abstract class AuthRemoteDataSource {
+//   Future<void> signIn(String email, String password);
+//   Future<void> signUp(String email, String password);
+//   Future<void> resetPassword(String email);
+// }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;

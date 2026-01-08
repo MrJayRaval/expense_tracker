@@ -4,7 +4,7 @@ import 'package:expense_tracker/features/dashboard/presentation/providers/dashbo
 import 'package:expense_tracker/features/dashboard/presentation/screens/test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,23 +42,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldey,
       backgroundColor: Color(0xFFFBEFEF),
-      floatingActionButton: (index == 3)
-          ? CategoryFAB()
-          : null,
+      floatingActionButton: (index == 3) ? CategoryFAB() : null,
       appBar: AppBar(
         backgroundColor: Color(0xFFFBEFEF),
         // centerTitle: true,
         title: Row(
-          
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.png', 
-              height: 25,
-            ), 
-            
-            SizedBox(width: 10,),
+            Image.asset('assets/logo.png', height: 25),
 
-            Text("FinWise")],
+            SizedBox(width: 10),
+
+            Text("FinWise"),
+          ],
         ),
       ),
       drawer: NavigationDrawerTheme(
@@ -130,8 +126,9 @@ class _HomePageState extends State<HomePage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
+                onTap: () async {
+                  await Hive.deleteFromDisk();
+                  await FirebaseAuth.instance.signOut();
                 },
                 child: Container(
                   child: Row(

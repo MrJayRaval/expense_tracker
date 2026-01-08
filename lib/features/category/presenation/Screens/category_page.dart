@@ -53,7 +53,7 @@ class _CategoryPageState extends State<CategoryPage> {
                       children: [
                         SvgPicture.asset(c.icon, height: 30),
                         SizedBox(width: 15),
-                        Text(c.label),
+                        Text(c.label, style: TextTheme.of(context).bodyLarge,),
                         const Spacer(),
                         if (!c.isDefault)
                           IconButton(

@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source_impl.dart';
+import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:expense_tracker/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
