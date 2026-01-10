@@ -91,13 +91,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Enter Username';
                         }
-                        return null;
+                        return null; // return null when valid
                       },
                     ),
 
                     const SizedBox(height: 18),
 
                     CustTextField(
+                      fieldName: 'emailField',
                       label: 'Email',
                       textInputType: TextInputType.emailAddress,
                       controller: _email,
@@ -116,12 +117,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                     const SizedBox(height: 18),
 
-                    CustPasswordField(label: 'Password', controller: _password),
+                    CustPasswordField(
+                      label: 'Password',
+                      controller: _password,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter Password';
+                        }
+                      },
+                    ),
 
                     const SizedBox(height: 18),
 
                     CustPasswordField(
                       validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter Confirm Password';
+                        }
                         if (_confirmPassword.text != _password.text) {
                           return "Password doesn't matched!";
                         }

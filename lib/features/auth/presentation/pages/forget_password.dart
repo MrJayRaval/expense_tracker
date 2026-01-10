@@ -74,9 +74,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         CustPrimaryButton(
                           label: 'Send',
                           function: () {
-                            context.read<AuthProviderr>().resetPassword(
-                              _email.text.trim(),
-                            );
+                            if (_formKey.currentState!.validate()) {
+                              context.read<AuthProviderr>().resetPassword(
+                                _email.text.trim(),
+                              );
+                            }
                           },
                         ),
 
