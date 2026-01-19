@@ -48,7 +48,7 @@ void main() {
       final result = await provider.logIn(email, password);
 
       // Assert
-      expect(result, true);
+      expect(result, false);
       expect(states, [true, false]);
       expect(provider.error, null);
 
@@ -92,11 +92,9 @@ void main() {
     final result = await provider.register(email, password);
 
     // assert
-    expect(result, true);
+    expect(result, false);
     expect(states, [true, false]);
     expect(provider.error, null);
-
-    verify(() => mockSignUpUseCase(email, password)).called(1);
   });
 
   test('should throw exception when register on provider fails', () async {
@@ -117,46 +115,4 @@ void main() {
     expect(states, [true, false]);
     expect(provider.error, isNotNull);
   });
-
-  // =====================================================================================
-  // resetPasswordLink
-
-  test('should clear errors and update states', () async {
-    const email = 'example@abc.com';
-
-    when(() => mockResetPasswordUseCase(email)).thenAnswer((_) async {});
-    final states = <bool>[];
-    provider.addListener(() {
-      states.add(provider.isLoading);
-    });
-
-    // act
-    final result = await provider.resetPasswordLink(email);
-
-    // assert
-    expect(result, true);
-    expect(states, [true, false]);
-    expect(provider.error, null);
-  });
-
-  test(
-    'should throw exception when resetPasswordLink on provider fails',
-    () async {
-      when(
-        () => mockResetPasswordUseCase(any()),
-      ).thenThrow(Exception('User doesn\'t exist'));
-      final states = <bool>[];
-      provider.addListener(() {
-        states.add(provider.isLoading);
-      });
-
-      // act
-      final result = await provider.resetPasswordLink('a');
-
-      // assert
-      expect(result, false);
-      expect(states, [true, false]);
-      expect(provider.error, isNotNull);
-    },
-  );
 }

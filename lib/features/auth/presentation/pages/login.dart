@@ -1,4 +1,3 @@
-import 'package:expense_tracker/config/colors.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
@@ -23,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProviderr>();
     return Scaffold(
-      backgroundColor: secondaryColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -35,12 +34,12 @@ class _LoginPageState extends State<LoginPage> {
 
               Text(
                 'Welcome Back!',
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
 
               Text(
                 'let\'s manage your money.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
 
               const SizedBox(height: 46),
@@ -100,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                               border: BoxBorder.fromLTRB(
                                 bottom: BorderSide(
                                   width: 2,
-                                  color: primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -108,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Forgot Password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),
@@ -153,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(
                               border: BoxBorder.fromLTRB(
                                 bottom: BorderSide(
-                                  color: primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 2,
                                 ),
                               ),
@@ -162,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Sign Up',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),

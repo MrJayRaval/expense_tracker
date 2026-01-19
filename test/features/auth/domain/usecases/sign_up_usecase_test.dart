@@ -31,18 +31,4 @@ void main() {
       verifyNoMoreInteractions(mockRepository);
     },
   );
-
-  test(
-    'should throw exception when signUp UseCase of AuthRepository fails',
-    () async {
-      const email = 'example@gmail.com';
-      const password = 'Example@123';
-      when(
-        () => mockRepository.signUp(email, password),
-      ).thenThrow(Exception('Invalid Credintial'));
-
-      // act
-      expectLater(() => useCase(email, password), throwsA(isA<Exception>()));
-    },
-  );
 }

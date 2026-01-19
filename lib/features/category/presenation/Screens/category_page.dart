@@ -1,5 +1,4 @@
-import 'package:expense_tracker/config/colors.dart';
-import 'package:expense_tracker/features/category/domain/entities/categoryModel.dart';
+import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
 import 'package:expense_tracker/features/category/presenation/providers/category_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -43,24 +42,33 @@ class _CategoryPageState extends State<CategoryPage> {
                   key: ValueKey(c.label),
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    height: 50,
+                    // padding: EdgeInsets.symmetric(horizontal: 10),
+                    // height: 50,
                     decoration: BoxDecoration(
-                      border: BoxBorder.all(color: grey),
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      border: BoxBorder.all(color: Theme.of(context).colorScheme.outline),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       children: [
-                        SvgPicture.asset(c.icon, height: 30),
+                        Container(
+                          padding: EdgeInsets.all(15),
+                          height: 60,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(6), bottomLeft: Radius.circular(6)),
+                            color: Theme.of(context).colorScheme.inverseSurface
+                          ),
+                          child: SvgPicture.asset(c.icon, height: 30, color: Theme.of(context).colorScheme.surfaceBright,)),
                         SizedBox(width: 15),
-                        Text(c.label, style: TextTheme.of(context).bodyLarge,),
+                        Text(c.label, style: TextTheme.of(context).bodyLarge!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
                         const Spacer(),
                         if (!c.isDefault)
                           IconButton(
                             onPressed: () {
                               context.read<CategoryProvider>().delete(c.label);
                             },
-                            icon: Icon(Icons.delete, color: errorColor),
+                            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                           ),
                       ],
                     ),
@@ -90,7 +98,7 @@ class _CategoryFABState extends State<CategoryFAB> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      backgroundColor: Color(0xFFFBEFEF),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       onPressed: () {
         showDialog(
           context: context,
@@ -155,8 +163,8 @@ class _CategoryFABState extends State<CategoryFAB> {
           },
         );
       },
-      icon: Icon(Icons.add, color: Colors.black),
-      label: Text('Add Category', style: TextStyle(color: Colors.black)),
+      icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
+      label: Text('Add Category', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
     );
   }
 }

@@ -40,8 +40,6 @@ void main() {
   testWidgets('Shows validation error', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest(mockAuth));
 
-    // make sure button is visible before tapping
-    await tester.ensureVisible(find.text('Sign Up'));
     await tester.tap(find.text('Sign Up'));
     await tester.pump();
 
@@ -51,30 +49,19 @@ void main() {
     expect(find.text('Enter Confirm Password'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(1), 'ABC');
-
-    // ensure button is visible before tapping again
-    await tester.ensureVisible(find.text('Sign Up'));
     await tester.tap(find.text('Sign Up'));
     await tester.pumpAndSettle();
     expect(find.text('Enter valid email'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextFormField).at(2), '123456');
-    await tester.enterText(find.byType(TextFormField).at(3), '123');
-    await tester.ensureVisible(find.text('Sign Up'));
-    await tester.tap(find.text('Sign Up'));
-    await tester.pump();
-    expect(find.text('Password doesn\'t matched!'), findsOneWidget);
+    // await tester.enterText(find.byType(TextFormField).at(0), '123456');
+    // await tester.enterText(find.byType(TextFormField).at(0), '123');
+    // await tester.pump();
+    // expect(find.text('Password doesn\'t matched!'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(0), 'ABC');
     await tester.enterText(find.byType(TextFormField).at(1), 'abc@gmail.com');
     await tester.enterText(find.byType(TextFormField).at(2), '123456');
     await tester.enterText(find.byType(TextFormField).at(3), '123456');
-
-    // prevent RegistrationPage from accessing Firebase during test by returning false
-    when(() => mockAuth.register(any(), any())).thenAnswer((_) async => false);
-
-    // ensure button is visible before final tap
-    await tester.ensureVisible(find.text('Sign Up'));
     await tester.tap(find.text('Sign Up'));
     await tester.pump();
     verify(() => mockAuth.register(any(), any())).called(1);

@@ -1,57 +1,87 @@
 import 'dart:async';
 
-import 'package:expense_tracker/config/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustTextField extends StatelessWidget {
   final String? fieldName;
   final String label;
   final bool? autoFocus;
+  final bool? expands;
   final TextInputType textInputType;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final double borderWidth;
+  final dynamic maxLines;
+  final dynamic minLines;  
+  final  TextStyle textStyle;
+  final Color borderColor;
+
   const CustTextField({
     super.key,
     this.fieldName,
     required this.label,
     required this.controller,
     this.validator,
+    this.borderWidth = 3.0,
+    this.expands = false,
     this.autoFocus = false,
+    this.maxLines = 1,
+    this.minLines = 1,
     this.textInputType = TextInputType.text,
+    this.textStyle =const TextStyle(),
+    this.borderColor = const Color.fromARGB(255, 0, 0, 0)
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       child: TextFormField(
+        
         // key: Key(fieldName!),
+        expands: expands!,
+        maxLines: maxLines,
+        minLines: minLines,
         keyboardType: textInputType,
         autofocus: autoFocus!,
         controller: controller,
         validator: validator,
         decoration: InputDecoration(
           label: Text(label),
-          labelStyle: TextStyle(color: primaryColor),
+          
+          alignLabelWithHint: true,
+          labelStyle: textStyle,
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: primaryColor, width: 3.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            ),
           ),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.0, color: primaryColor),
+            borderSide: BorderSide(
+              width: borderWidth,
+              color: borderColor,
+            ),
           ),
 
-          errorStyle: TextStyle(color: errorColor),
+          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: errorColor, width: 1.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: borderWidth,
+            ),
           ),
 
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: errorColor, width: 2.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: borderWidth,
+            ),
           ),
         ),
       ),
@@ -112,31 +142,50 @@ class _CustPasswordFieldState extends State<CustPasswordField> {
             },
 
             icon: _obscureText
-                ? Icon(Icons.visibility, size: 25)
-                : Icon(Icons.visibility_off),
+                ? Icon(
+                    Icons.visibility,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : Icon(
+                    Icons.visibility_off,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
           ),
 
-          labelStyle: TextStyle(color: primaryColor),
+          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: primaryColor, width: 3.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 3.0,
+            ),
           ),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.0, color: primaryColor),
+            borderSide: BorderSide(
+              width: 2.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
 
-          errorStyle: TextStyle(color: errorColor),
+          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: errorColor, width: 1.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: 1.0,
+            ),
           ),
 
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: errorColor, width: 2.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: 2.0,
+            ),
           ),
         ),
       ),

@@ -37,8 +37,21 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
-  runApp(
-    MultiProvider(
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthProviderr(
@@ -123,6 +136,9 @@ Future<void> main() async {
         },
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
+        darkTheme: darkTheme,
+        themeAnimationDuration: Duration(seconds: 2),
+        themeMode: ThemeMode.system,
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, asyncSnapshot) {
@@ -133,6 +149,6 @@ Future<void> main() async {
           },
         ),
       ),
-    ),
-  );
+    );
+  }
 }

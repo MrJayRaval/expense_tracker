@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/category/domain/entities/categoryModel.dart';
+import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
 import 'package:expense_tracker/features/category/domain/usecases/add_category_usecase.dart';
 import 'package:expense_tracker/features/category/domain/usecases/delete_category_usecase.dart';
 import 'package:expense_tracker/features/category/domain/usecases/get_category_usecase.dart';

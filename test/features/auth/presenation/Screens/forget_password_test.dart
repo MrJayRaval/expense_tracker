@@ -17,28 +17,29 @@ class MockSignInUsecase extends Mock implements SignInUseCase {}
 class MockSignUpUsecase extends Mock implements SignUpUseCase {}
 
 final authProvider = AuthProviderr(
-  signUp: MockSignUpUsecase(),
-  signIn: MockSignInUsecase(),
-  resetPassword: MockResetPasswordUsecase(),
-);
+      signUp: MockSignUpUsecase(),
+      signIn: MockSignInUsecase(),
+      resetPassword: MockResetPasswordUsecase(),
+    );
 
 Widget createWidgetUnderTest(AuthProviderr provider) {
   return MaterialApp(
     home: ChangeNotifierProvider<AuthProviderr>.value(
       value: authProvider,
-      child: const MaterialApp(home: ForgotPassword()),
+      child: const MaterialApp(
+        home: ForgotPassword()),
     ),
   );
 }
 
 void main() {
+
   setUp(() {
     final mockResetPassword = MockResetPasswordUsecase();
 
     when(() => mockResetPassword(any())).thenAnswer((_) async {});
 
-    // ensure the authProvider used by the widget is stubbed as well
-    when(() => authProvider.resetPassword(any())).thenAnswer((_) async {});
+    
   });
 
   testWidgets('Forget Password page shold render all required widgets', (

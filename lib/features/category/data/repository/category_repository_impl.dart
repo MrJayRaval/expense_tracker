@@ -1,6 +1,6 @@
 import 'package:expense_tracker/features/category/data/datasources/category_local_datasource.dart';
 import 'package:expense_tracker/features/category/data/datasources/category_remote_datasource.dart';
-import 'package:expense_tracker/features/category/domain/entities/categoryModel.dart';
+import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
 import 'package:expense_tracker/features/category/domain/repository/category_repository.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
@@ -13,13 +13,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<List<CategoryModel>> getAllCategories() async {
     // Load Cached Custom Categories
     List<String> customLabel = await local.getCachedCategories();
-    print("Cached:  $customLabel");
 
     // Fetch From firebase if cache is empty
     if (customLabel.isEmpty) {
       customLabel = await remote.fetchCategories();
       await local.cacheCategories(customLabel);
-      print("Firebase Fetched:  $customLabel");
     }
 
     // convert cutom label to model

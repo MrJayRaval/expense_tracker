@@ -32,7 +32,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   Center(
                     child: Text(
                       'Forgot Password?',
-                      style: TextTheme.of(context).headlineMedium,
+                      style: TextTheme.of(context).headlineMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                 ],
@@ -40,7 +40,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
               Text(
                 'Don\'t worry, If your account exist. we will send you password reset link.',
-                style: TextTheme.of(context).bodyMedium,
+                style: TextTheme.of(context).bodyMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
 
               SizedBox(height: 35),

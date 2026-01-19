@@ -44,6 +44,8 @@ dependencies:
   cloud_firestore: ^6.1.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  get: ^4.7.3
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,7 @@ flutter:
     - assets/
     - assets/Images/
     - assets/Images/categoryIcon/
+    - assets/Images/income/
     - assets/fonts/
     - assets/fonts/Outfit/
 

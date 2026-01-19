@@ -1,4 +1,3 @@
-import 'package:expense_tracker/config/colors.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/homepage.dart';
@@ -39,7 +38,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: secondaryColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SingleChildScrollView(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -91,7 +90,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Enter Username';
                         }
-                        return null; // return null when valid
+                        return ' ';
                       },
                     ),
 
@@ -124,6 +123,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         if (value == null || value.isEmpty) {
                           return 'Enter Password';
                         }
+                        return null;
                       },
                     ),
 
