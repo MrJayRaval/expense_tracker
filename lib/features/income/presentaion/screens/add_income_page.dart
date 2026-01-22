@@ -33,12 +33,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
   @override
   void initState() {
     super.initState();
-    input = TransactionInput(
-    notes: '',
-    amount: 0,
-    dateTime: DateTime.now(),
-  );
-
+    input = TransactionInput(notes: '', amount: 0, dateTime: DateTime.now());
   }
 
   @override
@@ -122,7 +117,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                       Expanded(
                         child: CustOutlinedButton(
                           label: selectedIncomeSource?.label ?? 'Income Source',
-                          textStyle: Theme.of(context).textTheme.bodyMedium!,
+                          textStyle: ThemeHelper.bodyMedium!,
                           borderRadius: 6,
                           borderWidth: 1.5,
                           borderColor: ThemeHelper.outline,
