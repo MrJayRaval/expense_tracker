@@ -1,10 +1,18 @@
-import 'package:expense_tracker/features/income/domain/entity/income_source_model%20copy.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
+import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
+import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
 import 'package:expense_tracker/features/income/domain/entity/income_type_model.dart';
+import 'package:expense_tracker/features/income/presentaion/provider/add_income_provider.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/income_source.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/income_type.dart';
 import 'package:expense_tracker/ui/components/button.dart';
+import 'package:expense_tracker/ui/components/models/calc_input_model.dart';
 import 'package:expense_tracker/ui/components/onscreen_keyboard.dart';
+import 'package:expense_tracker/ui/components/raise_error.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class AddIncomePage extends StatefulWidget {
   const AddIncomePage({super.key});
@@ -16,85 +24,41 @@ class AddIncomePage extends StatefulWidget {
 class _AddIncomePageState extends State<AddIncomePage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final addNotesTextEditingController = TextEditingController();
+  late TransactionInput input;
 
-  String calculationDisplay = '0';
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
-
+  int? selectedIncomeIndex;
   IncomeType? selectedIncomeType;
   IncomeSource? selectedIncomeSource;
 
-  void _onCalculatorInput(String value) {
-    setState(() {
-      if (value == 'C') {
-        calculationDisplay = '0';
-      } else if (value == 'DEL') {
-        if (calculationDisplay.length > 1) {
-          calculationDisplay = calculationDisplay.substring(
-            0,
-            calculationDisplay.length - 1,
-          );
-        } else {
-          calculationDisplay = '0';
-        }
-      } else if (value == '=') {
-        try {
-          final result = _evaluateExpression(calculationDisplay);
-          calculationDisplay = result.toString();
-        } catch (e) {
-          calculationDisplay = 'Error';
-        }
-      } else {
-        if (calculationDisplay == '0' && value != '.') {
-          calculationDisplay = value;
-        } else {
-          calculationDisplay += value;
-        }
-      }
-    });
-  }
+  @override
+  void initState() {
+    super.initState();
+    input = TransactionInput(
+    notes: '',
+    amount: 0,
+    dateTime: DateTime.now(),
+  );
 
-  double _evaluateExpression(String expression) {
-    // Simple evaluation: replace operators and calculate
-    expression = expression.replaceAll('×', '*').replaceAll('÷', '/');
-    // Using a simple evaluation (in production, use a proper expression evaluator)
-    return double.parse(
-      expression.split(RegExp(r'[+\-*/]')).fold(0.0, (prev, element) {
-        return prev + double.parse(element.isEmpty ? '0' : element);
-      }).toString(),
-    );
-  }
-
-  Future<void> _selectDate() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-    );
-    if (pickedDate != null) {
-      setState(() => selectedDate = pickedDate);
-    }
-  }
-
-  Future<void> _selectTime() async {
-    final pickedTime = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-    if (pickedTime != null) {
-      setState(() => selectedTime = pickedTime);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<IncomeProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final error = provider.error;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(buildErrorSnackBar(error));
+        provider.clearError(); // IMPORTANT
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Center(
             child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -102,7 +66,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   Text(
                     'Add Income',
                     style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: ThemeHelper.onSurface,
                     ),
                   ),
 
@@ -113,11 +77,11 @@ class _AddIncomePageState extends State<AddIncomePage> {
                     children: [
                       Expanded(
                         child: CustOutlinedButton(
-                          label: 'Income Type',
+                          label: selectedIncomeType?.label ?? 'Income Type',
                           textStyle: Theme.of(context).textTheme.bodyMedium!,
                           borderRadius: 6,
                           borderWidth: 1.5,
-                          borderColor: Theme.of(context).colorScheme.outline,
+                          borderColor: ThemeHelper.outline,
                           function: () {
                             showDialog(
                               context: context,
@@ -157,11 +121,11 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
                       Expanded(
                         child: CustOutlinedButton(
-                          label: 'Income Source',
+                          label: selectedIncomeSource?.label ?? 'Income Source',
                           textStyle: Theme.of(context).textTheme.bodyMedium!,
                           borderRadius: 6,
                           borderWidth: 1.5,
-                          borderColor: Theme.of(context).colorScheme.outline,
+                          borderColor: ThemeHelper.outline,
                           function: () {
                             showDialog(
                               context: context,
@@ -201,47 +165,139 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
                   SizedBox(height: 15),
 
-                  OnScreenKeyBoard()
+                  OnScreenKeyBoard(
+                    onCompleted: (TransactionInput value) {
+                      input = value;
+                    },
+                  ),
+
+                  Container(
+                    width: double.infinity,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: provider.isLoading
+                          ? ThemeHelper.outline
+                          : ThemeHelper.secondary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          List<String> errors = [];
+                          if ((input.notes).isEmpty) {
+                            // TransactionInput fields are immutable/final. Create a new
+                            // TransactionInput with the updated notes value instead of
+                            // trying to assign to a final field.
+                            input = TransactionInput(
+                              notes: "Empty",
+                              amount: input.amount,
+                              dateTime: input.dateTime,
+                            );
+                          }
+                          if ((input.amount) <= 0) {
+                            errors.add('Enter valid Amount');
+                          }
+
+                          if ((selectedIncomeType?.label ?? '').isEmpty) {
+                            errors.add('Select Income Type');
+                          }
+
+                          if ((selectedIncomeSource?.label ?? '').isEmpty) {
+                            errors.add('Select Income Source');
+                          }
+
+                          if (errors.isNotEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: errors
+                                      .map(
+                                        (e) => Text(
+                                          '• $e',
+                                          style: ThemeHelper.bodyMedium!
+                                              .copyWith(
+                                                color: ThemeHelper
+                                                    .onErrorContainer,
+                                              ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                                backgroundColor: ThemeHelper.errorContainer,
+                                showCloseIcon: true,
+                                closeIconColor: ThemeHelper.onErrorContainer,
+                                duration: const Duration(seconds: 2),
+                                dismissDirection: DismissDirection.up,
+                              ),
+                            );
+                          } else {
+                            final income = IncomeDetailsModel(
+                              incomeTypeLabel: selectedIncomeType!.label,
+                              incomeTypeIcon: selectedIncomeType!.icon,
+                              incomeSourceLabel: selectedIncomeSource!.label,
+                              incomeSourceIcon: selectedIncomeSource!.icon,
+                              notes: input.notes,
+                              amount: input.amount,
+                              dateTime: input.dateTime,
+                            );
+                            context.read<IncomeProvider>().addIncome(income);
+
+                            if (provider.error == null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
+                                ),
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Income Added Successfully",
+                                    style: ThemeHelper.bodyMedium!.copyWith(
+                                      color: ThemeHelper.onSecondary,
+                                    ),
+                                  ),
+                                  backgroundColor: ThemeHelper.secondary,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                provider.isLoading ? null : Icons.save,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondary,
+                              ),
+                              SizedBox(width: 10),
+                              provider.isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text(
+                                      'Save',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSecondary,
+                                          ),
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _calcButton(String label) {
-    final isOperator = ['+', '-', '×', '÷', '='].contains(label);
-    final isDecimal = label == '.';
-
-    return Material(
-      color: const Color.fromARGB(0, 0, 0, 0),
-      child: InkWell(
-        onTap: () => _onCalculatorInput(label),
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isOperator
-                ? Theme.of(context).colorScheme.primary
-                : isDecimal
-                ? Theme.of(context).colorScheme.tertiaryContainer
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline,
-              width: 0.5,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-                color: isOperator
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),

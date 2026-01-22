@@ -1,3 +1,4 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
@@ -32,7 +33,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   Center(
                     child: Text(
                       'Forgot Password?',
-                      style: TextTheme.of(context).headlineMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                      style: TextTheme.of(
+                        context,
+                      ).headlineMedium!.copyWith(color: ThemeHelper.onSurface),
                     ),
                   ),
                 ],
@@ -40,7 +43,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
               Text(
                 'Don\'t worry, If your account exist. we will send you password reset link.',
-                style: TextTheme.of(context).bodyMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: TextTheme.of(
+                  context,
+                ).bodyMedium!.copyWith(color: ThemeHelper.onSurface),
               ),
 
               SizedBox(height: 35),

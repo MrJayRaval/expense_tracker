@@ -1,8 +1,12 @@
+import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/ui/components/models/calc_input_model.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
 import 'package:flutter/material.dart';
 
 class OnScreenKeyBoard extends StatefulWidget {
-  const OnScreenKeyBoard({super.key});
+  final ValueChanged<TransactionInput>? onCompleted;
+
+  const OnScreenKeyBoard({super.key, required this.onCompleted});
 
   @override
   State<OnScreenKeyBoard> createState() => _OnScreenKeyBoardState();
@@ -15,6 +19,26 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
   String calculationDisplay = '0';
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
+
+  void _emitValue() {
+    if (calculationDisplay == 'Error') return;
+
+    final dateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    widget.onCompleted!(
+      TransactionInput(
+        amount: double.tryParse(calculationDisplay) ?? 0,
+        notes: addNotesTextEditingController.text.trim(),
+        dateTime: dateTime,
+      ),
+    );
+  }
 
   void _onCalculatorInput(String value) {
     setState(() {
@@ -44,6 +68,8 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
         }
       }
     });
+
+    _emitValue();
   }
 
   double _evaluateExpression(String expression) {
@@ -66,6 +92,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
     );
     if (pickedDate != null) {
       setState(() => selectedDate = pickedDate);
+      _emitValue();
     }
   }
 
@@ -76,287 +103,224 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
     );
     if (pickedTime != null) {
       setState(() => selectedTime = pickedTime);
+      _emitValue();
     }
   }
+
+  @override
+  void dispose() {
+    addNotesTextEditingController.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Form(
-                    key: formKey,
-                    child: CustTextField(
-                      label: 'Add Notes',
-                      controller: addNotesTextEditingController,
-                      borderWidth: 1,
-                      maxLines: null,
-                      minLines: 3,
-                      textStyle: Theme.of(context).textTheme.bodyMedium!
-                          .copyWith(
-                            color: Theme.of(context).colorScheme.outline,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Column(
+        children: [
+          Form(
+            key: formKey,
+            child: CustTextField(
+              label: 'Add Notes',
+              controller: addNotesTextEditingController,
+              onChanged: (_) {
+                _emitValue();
+              },
+              borderWidth: 1,
+              maxLines: null,
+              minLines: 3,
+              textStyle: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: ThemeHelper.outline),
+              borderColor: ThemeHelper.outline,
+            ),
+          ),
+      
+          SizedBox(height: 20),
+      
+          // Calculator Display
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Container(
+                  width: 48,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: ThemeHelper.outline),
+                    borderRadius: BorderRadius.circular(8),
+                    color: ThemeHelper.surface,
+                  ),
+                  child: Text(
+                    calculationDisplay,
+                    textAlign: TextAlign.right,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+            ],
+          ),
+      
+          SizedBox(height: 12),
+      
+          // Calculator Grid
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            children: [
+              _calcButton('7'),
+              _calcButton('8'),
+              _calcButton('9'),
+              _calcButton('÷'),
+              _calcButton('4'),
+              _calcButton('5'),
+              _calcButton('6'),
+              _calcButton('×'),
+              _calcButton('1'),
+              _calcButton('2'),
+              _calcButton('3'),
+              _calcButton('-'),
+              _calcButton('0'),
+              _calcButton('.'),
+              _calcButton('='),
+              _calcButton('+'),
+            ],
+          ),
+      
+          SizedBox(height: 16),
+      
+          // Clear Button
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  // width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: ThemeHelper.primary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _onCalculatorInput('C'),
+                      child: Center(
+                        child: Text(
+                          'Clear All',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
-                      borderColor: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
                     ),
                   ),
-
-                  SizedBox(height: 20),
-
-                  // Calculator Display
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          width: 48,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Theme.of(context).colorScheme.surface,
-                          ),
-                          child: Text(
-                            calculationDisplay,
-                            textAlign: TextAlign.right,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.errorContainer,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _onCalculatorInput('DEL'),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.backspace_outlined,
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                ),
+              ),
+      
+              SizedBox(width: 10),
+      
+              Expanded(
+                child: Container(
+                  // width: double.minPositive,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: ThemeHelper.errorContainer,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-
-                  SizedBox(height: 12),
-
-                  // Calculator Grid
-                  GridView.count(
-                    crossAxisCount: 4,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    children: [
-                      _calcButton('7'),
-                      _calcButton('8'),
-                      _calcButton('9'),
-                      _calcButton('÷'),
-                      _calcButton('4'),
-                      _calcButton('5'),
-                      _calcButton('6'),
-                      _calcButton('×'),
-                      _calcButton('1'),
-                      _calcButton('2'),
-                      _calcButton('3'),
-                      _calcButton('-'),
-                      _calcButton('0'),
-                      _calcButton('.'),
-                      _calcButton('='),
-                      _calcButton('+'),
-                    ],
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        _onCalculatorInput('DEL');
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.backspace_outlined,
+                            color: ThemeHelper.error,
+                          ),
+                          SizedBox(width: 10),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
                   ),
-
-                  SizedBox(height: 16),
-
-                  // Clear Button
-                  Row(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ],
+          ),
+      
+          SizedBox(height: 20),
+      
+          // Date and Time Selection
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: _selectDate,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: ThemeHelper.outline),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Date',
+                          style: Theme.of(context).textTheme.labelSmall,
                         ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _onCalculatorInput('C'),
-                            child: Center(
-                              child: Text(
-                                'C',
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
-                                ),
-                              ),
-                            ),
-                          ),
+                        SizedBox(height: 4),
+                        Text(
+                          '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      ),
-
-                      SizedBox(width: 10),
-
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.secondary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              // onTap: () {
-                              //   if (
-                              //       calculationDisplay != '0' &&
-                              //       calculationDisplay != 'Error') {
-                              //     // Create IncomeDetails object
-                              //     final incomeDetails = IncomeDetailsModel(
-                              //       amount: double.parse(calculationDisplay),
-                              //       notes: addNotesTextEditingController.text,
-                              //       date: selectedDate,
-                              //       time: selectedTime,
-                              //       incomeSourceLabel:
-                              //           selectedIncomeSource!.label,
-                              //       incomeSourceIcon:
-                              //           selectedIncomeSource!.icon,
-                              //     );
-                              //     print(incomeDetails.amount);
-                              //     print(incomeDetails.date);
-                              //     print(incomeDetails.dateTime);
-                              //     print(incomeDetails.incomeSourceIcon);
-                              //     print(incomeDetails.incomeSourceLabel);
-                              //     print(incomeDetails.incomeTypeIcon);
-                              //     print(incomeDetails.incomeTypeLabel);
-                              //     print(incomeDetails.notes);
-                              //     print(incomeDetails.time);
-                              //   } else {
-                              //     ScaffoldMessenger.of(context).showSnackBar(
-                              //       SnackBar(
-                              //         content: Text('Please fill all fields'),
-                              //       ),
-                              //     );
-                              //   }
-                              // },
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.save,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSecondary,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Save',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge!
-                                          .copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSecondary,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-
-                  SizedBox(height: 20),
-
-                  // Date and Time Selection
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _selectDate,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Date',
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: _selectTime,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: ThemeHelper.outline),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Time',
+                          style: Theme.of(context).textTheme.labelSmall,
                         ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _selectTime,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Time',
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
+                        SizedBox(height: 4),
+                        Text(
+                          '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-      ],
+                ),
+              ),
+            ],
+          ),
+      
+          SizedBox(height: 16),
+        ],
+      ),
     );
   }
 
@@ -372,15 +336,12 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
         child: Container(
           decoration: BoxDecoration(
             color: isOperator
-                ? Theme.of(context).colorScheme.primary
+                ? ThemeHelper.primary
                 : isDecimal
                 ? Theme.of(context).colorScheme.tertiaryContainer
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                : ThemeHelper.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline,
-              width: 0.5,
-            ),
+            border: Border.all(color: ThemeHelper.outline, width: 0.5),
           ),
           child: Center(
             child: Text(
@@ -389,8 +350,8 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: isOperator
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSurface,
+                    ? ThemeHelper.onPrimary
+                    : ThemeHelper.onSurface,
               ),
             ),
           ),
@@ -399,4 +360,3 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
     );
   }
 }
-

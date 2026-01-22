@@ -14,8 +14,7 @@ class IncomeDetailsModel {
   final double amount;
 
   // Date & Time (separate but derived from one DateTime)
-  final DateTime date;
-  final TimeOfDay time;
+  final DateTime dateTime;
 
   const IncomeDetailsModel({
     required this.incomeTypeLabel,
@@ -24,20 +23,8 @@ class IncomeDetailsModel {
     required this.incomeSourceIcon,
     required this.notes,
     required this.amount,
-    required this.date,
-    required this.time,
+    required this.dateTime,
   });
-
-  // ---- Helpers ----
-
-  /// Combine date & time when you need a full timestamp
-  DateTime get dateTime => DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
 
   // ---- Serialization ----
 
@@ -49,9 +36,7 @@ class IncomeDetailsModel {
       'incomeSourceIcon': incomeSourceIcon,
       'notes': notes,
       'amount': amount,
-      'date': date.toIso8601String(),
-      'hour': time.hour,
-      'minute': time.minute,
+      'dateTime': dateTime.toIso8601String(),
     };
   }
 
@@ -63,11 +48,7 @@ class IncomeDetailsModel {
       incomeSourceIcon: json['incomeSourceIcon'],
       notes: json['notes'],
       amount: (json['amount'] as num).toDouble(),
-      date: DateTime.parse(json['date']),
-      time: TimeOfDay(
-        hour: json['hour'],
-        minute: json['minute'],
-      ),
+      dateTime: DateTime.parse(json['date']),
     );
   }
 }

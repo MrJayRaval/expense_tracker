@@ -1,3 +1,4 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/category/presenation/providers/category_provider.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/add_income_page.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/income_source.dart';
@@ -52,10 +53,7 @@ class _IncomePageState extends State<IncomePage> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: (isSource == false)
-                            ? BorderSide(
-                                width: 3,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
+                            ? BorderSide(width: 3, color: ThemeHelper.primary)
                             : BorderSide.none,
                       ),
                     ),
@@ -63,7 +61,7 @@ class _IncomePageState extends State<IncomePage> {
                       child: Text(
                         'Type',
                         style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: ThemeHelper.onSurface,
                         ),
                       ),
                     ),
@@ -91,10 +89,7 @@ class _IncomePageState extends State<IncomePage> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: (isSource == true)
-                            ? BorderSide(
-                                width: 3,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
+                            ? BorderSide(width: 3, color: ThemeHelper.primary)
                             : BorderSide.none,
                       ),
                     ),
@@ -102,7 +97,7 @@ class _IncomePageState extends State<IncomePage> {
                       child: Text(
                         'Source',
                         style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: ThemeHelper.onSurface,
                         ),
                       ),
                     ),
@@ -112,7 +107,9 @@ class _IncomePageState extends State<IncomePage> {
             ],
           ),
 
-          (isSource == false) ? Expanded(child: IncomeTypeWidget(onItemSelected: (value) {  },)) : Expanded(child: IncomeSourceWidget(onItemSelected: (value) {  },)),
+          (isSource == false)
+              ? Expanded(child: IncomeTypeWidget(onItemSelected: (value) {}))
+              : Expanded(child: IncomeSourceWidget(onItemSelected: (value) {})),
         ],
       ),
     );
@@ -131,19 +128,19 @@ class _IncomeFABState extends State<IncomeFAB> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
+      backgroundColor: ThemeHelper.onSurface,
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AddIncomePage()),
         );
       },
-      icon: Icon(Icons.add, color: Theme.of(context).colorScheme.surface),
+      icon: Icon(Icons.add, color: ThemeHelper.surface),
       label: Text(
         'Add Income',
-        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-          color: Theme.of(context).colorScheme.surface,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge!.copyWith(color: ThemeHelper.surface),
       ),
     );
   }

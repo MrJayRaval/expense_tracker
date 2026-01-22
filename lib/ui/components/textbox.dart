@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class CustTextField extends StatelessWidget {
@@ -12,9 +13,10 @@ class CustTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final double borderWidth;
   final dynamic maxLines;
-  final dynamic minLines;  
-  final  TextStyle textStyle;
+  final dynamic minLines;
+  final TextStyle textStyle;
   final Color borderColor;
+  final ValueChanged<String>? onChanged;
 
   const CustTextField({
     super.key,
@@ -28,15 +30,15 @@ class CustTextField extends StatelessWidget {
     this.maxLines = 1,
     this.minLines = 1,
     this.textInputType = TextInputType.text,
-    this.textStyle =const TextStyle(),
-    this.borderColor = const Color.fromARGB(255, 0, 0, 0)
+    this.textStyle = const TextStyle(),
+    this.borderColor = const Color.fromARGB(255, 0, 0, 0), 
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       child: TextFormField(
-        
         // key: Key(fieldName!),
         expands: expands!,
         maxLines: maxLines,
@@ -44,34 +46,29 @@ class CustTextField extends StatelessWidget {
         keyboardType: textInputType,
         autofocus: autoFocus!,
         controller: controller,
+        onChanged: onChanged,
         validator: validator,
         decoration: InputDecoration(
           label: Text(label),
-          
+
           alignLabelWithHint: true,
           labelStyle: textStyle,
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: ThemeHelper.primary, width: 2),
           ),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              width: borderWidth,
-              color: borderColor,
-            ),
+            borderSide: BorderSide(width: borderWidth, color: borderColor),
           ),
 
-          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+          errorStyle: TextStyle(color: ThemeHelper.error),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.error,
+              color: ThemeHelper.error,
               width: borderWidth,
             ),
           ),
@@ -79,7 +76,7 @@ class CustTextField extends StatelessWidget {
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.error,
+              color: ThemeHelper.error,
               width: borderWidth,
             ),
           ),
@@ -142,50 +139,31 @@ class _CustPasswordFieldState extends State<CustPasswordField> {
             },
 
             icon: _obscureText
-                ? Icon(
-                    Icons.visibility,
-                    size: 25,
-                    color: Theme.of(context).colorScheme.primary,
-                  )
-                : Icon(
-                    Icons.visibility_off,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                ? Icon(Icons.visibility, size: 25, color: ThemeHelper.primary)
+                : Icon(Icons.visibility_off, color: ThemeHelper.primary),
           ),
 
-          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          labelStyle: TextStyle(color: ThemeHelper.onSurface),
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 3.0,
-            ),
+            borderSide: BorderSide(color: ThemeHelper.primary, width: 3.0),
           ),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              width: 2.0,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            borderSide: BorderSide(width: 2.0, color: ThemeHelper.primary),
           ),
 
-          errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+          errorStyle: TextStyle(color: ThemeHelper.error),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.error,
-              width: 1.0,
-            ),
+            borderSide: BorderSide(color: ThemeHelper.error, width: 1.0),
           ),
 
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.error,
-              width: 2.0,
-            ),
+            borderSide: BorderSide(color: ThemeHelper.error, width: 2.0),
           ),
         ),
       ),

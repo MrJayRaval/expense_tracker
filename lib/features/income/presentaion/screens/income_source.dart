@@ -1,4 +1,5 @@
-import 'package:expense_tracker/features/income/domain/entity/income_source_model%20copy.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -21,7 +22,7 @@ class IncomeSourceWidget extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadiusGeometry.circular(10),
             ),
-            tileColor: Theme.of(context).colorScheme.onPrimary,
+            tileColor: ThemeHelper.onPrimary,
             leading: SvgPicture.asset(item['icon']!, height: 30),
             title: Text(item['label']!),
           ),

@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/category/presenation/providers/category_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,18 +11,33 @@ class CategoryPage extends StatefulWidget {
   State<CategoryPage> createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
+class _CategoryPageState extends State<CategoryPage>
+    with AutomaticKeepAliveClientMixin {
+  late final Map<String, Widget> _svgCache = {};
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().load();
     });
   }
 
+  Widget _cachedSvgIcon(String iconPath, double height, Color color) {
+    final key = '$iconPath-$height-${color.value}';
+    _svgCache.putIfAbsent(
+      key,
+      () => SvgPicture.asset(iconPath, height: height, color: color),
+    );
+    return _svgCache[key]!;
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final category = context.watch<CategoryProvider>();
 
     if (category.isLoading && category.categories.isEmpty) {
@@ -38,37 +53,54 @@ class _CategoryPageState extends State<CategoryPage> {
               itemCount: category.categories.length,
               itemBuilder: (_, i) {
                 final c = category.categories[i];
+                final inverseSurfaceColor = Theme.of(
+                  context,
+                ).colorScheme.inverseSurface;
+                final surfaceBrightColor = Theme.of(
+                  context,
+                ).colorScheme.surfaceBright;
+                final outlineColor = ThemeHelper.outline;
+                final onSurfaceColor = ThemeHelper.onSurface;
+                final errorColor = ThemeHelper.error;
+
                 return Padding(
                   key: ValueKey(c.label),
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Container(
-                    // padding: EdgeInsets.symmetric(horizontal: 10),
-                    // height: 50,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      border: BoxBorder.all(color: Theme.of(context).colorScheme.outline),
+                      color: ThemeHelper.onPrimary,
+                      border: Border.all(color: outlineColor),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           height: 60,
                           width: 60,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(6), bottomLeft: Radius.circular(6)),
-                            color: Theme.of(context).colorScheme.inverseSurface
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(6),
+                              bottomLeft: Radius.circular(6),
+                            ),
+                            color: inverseSurfaceColor,
                           ),
-                          child: SvgPicture.asset(c.icon, height: 30, color: Theme.of(context).colorScheme.surfaceBright,)),
-                        SizedBox(width: 15),
-                        Text(c.label, style: TextTheme.of(context).bodyLarge!.copyWith(color: Theme.of(context).colorScheme.onSurface),),
-                        const Spacer(),
+                          child: _cachedSvgIcon(c.icon, 30, surfaceBrightColor),
+                        ),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: Text(
+                            c.label,
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(color: onSurfaceColor),
+                          ),
+                        ),
                         if (!c.isDefault)
                           IconButton(
                             onPressed: () {
                               context.read<CategoryProvider>().delete(c.label);
                             },
-                            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                            icon: Icon(Icons.delete, color: errorColor),
                           ),
                       ],
                     ),
@@ -77,10 +109,16 @@ class _CategoryPageState extends State<CategoryPage> {
               },
             ),
           ),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _svgCache.clear();
+    super.dispose();
   }
 }
 
@@ -94,77 +132,80 @@ class CategoryFAB extends StatefulWidget {
 class _CategoryFABState extends State<CategoryFAB> {
   final addCategoryController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    addCategoryController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Add Category'),
-              content: Form(
-                key: _formKey,
-                child: TextFormField(
-                  validator: (value) {
-                    if (expenseCategoryEntity.any(
-                      (e) =>
-                          e['label']!.toLowerCase() ==
-                          addCategoryController.text.toLowerCase(),
-                    )) {
-                      return 'category is already exist!';
-                    } else if (value!.length > 25) {
-                      return 'Maximum 25 Character Allowed!';
-                    } else if (value.trim().contains(' ')) {
-                      return 'Only One word allowed';
-                    }
-                    return null;
-                  },
-                  controller: addCategoryController,
-                  autofocus: true,
-                  decoration: InputDecoration(label: Text('Category Name')),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel'),
-                ),
+      backgroundColor: ThemeHelper.surface,
+      onPressed: () => _showAddCategoryDialog(),
+      icon: Icon(Icons.add, color: ThemeHelper.onSurface),
+      label: Text(
+        'Add Category',
+        style: TextStyle(color: ThemeHelper.onSurface),
+      ),
+    );
+  }
 
-                TextButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      context.read<CategoryProvider>().add(
-                        addCategoryController.text,
-                      );
-
-                      Navigator.pop(context);
-
-
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (_scrollController.hasClients) {
-                          _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        }
-                      });
-                    }
-                  },
-                  child: Text('Add'),
-                ),
-              ],
-            );
-          },
+  void _showAddCategoryDialog() {
+    addCategoryController.clear();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Category'),
+          content: Form(
+            key: _formKey,
+            child: TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Category name required';
+                }
+                final provider = context.read<CategoryProvider>();
+                provider.load();
+                if (provider.categories.any(
+                  (c) => c.label.toLowerCase() == value.toLowerCase(),
+                )) {
+                  return 'Category already exists!';
+                }
+                if (value.length > 25) {
+                  return 'Maximum 25 characters allowed!';
+                }
+                if (value.trim().contains(' ')) {
+                  return 'Only one word allowed';
+                }
+                return null;
+              },
+              controller: addCategoryController,
+              // autofocus: true,
+              decoration: const InputDecoration(label: Text('Category Name')),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => _addCategory(context),
+              child: const Text('Add'),
+            ),
+          ],
         );
       },
-      icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
-      label: Text('Add Category', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
     );
+  }
+
+  void _addCategory(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      context.read<CategoryProvider>().add(addCategoryController.text);
+      Navigator.pop(context);
+      addCategoryController.clear();
+    }
   }
 }

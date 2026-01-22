@@ -47,4 +47,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
     await remote.deleteCategory(label);
     await local.deleteCachedCategory(label);
   }
+  
+  @override
+  Future<bool> isCategoryDuplicated(String label) {
+    return remote.isCategoryDuplicated(label);
+  }
 }

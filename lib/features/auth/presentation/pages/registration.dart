@@ -1,6 +1,7 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
-import 'package:expense_tracker/features/dashboard/presentation/screens/homepage.dart';
+import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
 import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
 import 'package:expense_tracker/features/create_profile/presentation/provider/profile_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
@@ -38,7 +39,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: ThemeHelper.surface,
       body: SingleChildScrollView(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,

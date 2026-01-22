@@ -152,7 +152,7 @@ var darkTheme = ThemeData(
   onPrimaryContainer: Color(0xFFDBEAFE),
 
   // Secondary
-  secondary: Color(0xFF5EEAD4),
+  secondary: Color(0xFF16C47F),
   onSecondary: Color(0xFF042F2E),
   secondaryContainer: Color(0xFF134E4A),
   onSecondaryContainer: Color(0xFFCCFBF1),

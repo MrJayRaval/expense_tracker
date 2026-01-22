@@ -6,7 +6,6 @@ class CategoryRemoteDatasource {
   final FirebaseAuth firebaseAuth;
 
   CategoryRemoteDatasource(this.firestore, this.firebaseAuth);
-  
 
   Future<List<String>> fetchCategories() async {
     String userId = firebaseAuth.currentUser!.uid;
@@ -27,5 +26,14 @@ class CategoryRemoteDatasource {
     await firestore.collection('users').doc(userId).update({
       'categories': FieldValue.arrayRemove([label]),
     });
+  }
+
+  Future<bool> isCategoryDuplicated(String label) async {
+    String userId = firebaseAuth.currentUser!.uid;
+    final response = await firestore
+        .collection('users')
+        .where('categories', arrayContains: label)
+        .get();
+    return response.docs.isNotEmpty;
   }
 }

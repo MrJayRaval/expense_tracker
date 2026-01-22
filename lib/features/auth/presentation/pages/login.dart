@@ -1,3 +1,4 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
@@ -22,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProviderr>();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: ThemeHelper.surface,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -34,12 +35,16 @@ class _LoginPageState extends State<LoginPage> {
 
               Text(
                 'Welcome Back!',
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                  color: ThemeHelper.onSurface,
+                ),
               ),
 
               Text(
                 'let\'s manage your money.',
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium!.copyWith(color: ThemeHelper.onSurface),
               ),
 
               const SizedBox(height: 46),
@@ -99,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                               border: BoxBorder.fromLTRB(
                                 bottom: BorderSide(
                                   width: 2,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: ThemeHelper.primary,
                                 ),
                               ),
                             ),
@@ -107,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Forgot Password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: ThemeHelper.primary,
                               ),
                             ),
                           ),
@@ -119,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     if (auth.isLoading) const CircularProgressIndicator(),
 
-                    if (auth.error != null) Text(auth.error!),
+                    if (auth.error != null) SnackBar(content: Text(auth.error!)),
 
                     CustPrimaryButton(
                       label: 'Sign In',
@@ -152,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(
                               border: BoxBorder.fromLTRB(
                                 bottom: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: ThemeHelper.primary,
                                   width: 2,
                                 ),
                               ),
@@ -161,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Sign Up',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: ThemeHelper.primary,
                               ),
                             ),
                           ),

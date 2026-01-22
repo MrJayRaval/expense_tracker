@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/config/themes.dart';
 import 'package:expense_tracker/features/auth/data/data/auth_repository_impl.dart';
 import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source_impl.dart';
@@ -14,15 +15,20 @@ import 'package:expense_tracker/features/category/data/repository/category_repos
 import 'package:expense_tracker/features/category/domain/usecases/add_category_usecase.dart';
 import 'package:expense_tracker/features/category/domain/usecases/delete_category_usecase.dart';
 import 'package:expense_tracker/features/category/domain/usecases/get_category_usecase.dart';
+import 'package:expense_tracker/features/category/domain/usecases/is_category_duplicated.dart';
 import 'package:expense_tracker/features/category/presenation/Screens/category_page.dart';
 import 'package:expense_tracker/features/category/presenation/providers/category_provider.dart';
-import 'package:expense_tracker/features/dashboard/data/data/user_repository.dart';
-import 'package:expense_tracker/features/dashboard/data/datasources/user_remote_data_source.dart';
-import 'package:expense_tracker/features/dashboard/domain/usecases/fetch_user_details_usecase.dart';
-import 'package:expense_tracker/features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'package:expense_tracker/features/dashboard/presentation/screens/homepage.dart';
+import 'package:expense_tracker/features/homepage/data/data/user_repository.dart';
+import 'package:expense_tracker/features/homepage/data/datasources/user_remote_data_source.dart';
+import 'package:expense_tracker/features/homepage/domain/usecases/fetch_user_details_usecase.dart';
+import 'package:expense_tracker/features/homepage/presentation/providers/dashboard_provider.dart';
+import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
 import 'package:expense_tracker/features/create_profile/data/datasources/profile_remote_data_sources.dart';
 import 'package:expense_tracker/features/create_profile/presentation/provider/profile_provider.dart';
+import 'package:expense_tracker/features/income/data/datasource/add_income_datasource_impl.dart';
+import 'package:expense_tracker/features/income/data/repository/income_repository_impl.dart';
+import 'package:expense_tracker/features/income/domain/usecases/add_income_usecase.dart';
+import 'package:expense_tracker/features/income/presentaion/provider/add_income_provider.dart';
 import 'package:expense_tracker/firebase_options.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
 import 'package:expense_tracker/routes/routes.dart';
@@ -49,27 +55,57 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late final AuthRepositoryImpl _authRepository;
+  late final CategoryRepositoryImpl _categoryRepository;
+  late final UserDetailsRepositoryImpl _userRepository;
+  late final IncomeRepositoryImpl _incomeRepositoryImpl;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize repositories once to avoid duplicate instantiation
+    _authRepository = AuthRepositoryImpl(
+      AuthRemoteDataSourceImpl(FirebaseAuth.instance),
+    );
+
+    _categoryRepository = CategoryRepositoryImpl(
+      local: CategoryLocalDatasource(),
+      remote: CategoryRemoteDatasource(
+        FirebaseFirestore.instance,
+        FirebaseAuth.instance,
+      ),
+    );
+
+    _userRepository = UserDetailsRepositoryImpl(
+      remoteDataSource: UserRemoteDataSourceImpl(
+        firebaseAuth: FirebaseAuth.instance,
+        firestore: FirebaseFirestore.instance,
+      ),
+    );
+
+    _incomeRepositoryImpl = IncomeRepositoryImpl(
+      remote: AddIncomeDataSourceImpl(
+        firebaseAuth: FirebaseAuth.instance,
+        firestore: FirebaseFirestore.instance,
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ThemeHelper.init(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthProviderr(
-            signUp: SignUpUseCase(
-              AuthRepositoryImpl(
-                AuthRemoteDataSourceImpl(FirebaseAuth.instance),
-              ),
-            ),
-            signIn: SignInUseCase(
-              AuthRepositoryImpl(
-                AuthRemoteDataSourceImpl(FirebaseAuth.instance),
-              ),
-            ),
-            resetPassword: ResetPasswordUseCase(
-              AuthRepositoryImpl(
-                AuthRemoteDataSourceImpl(FirebaseAuth.instance),
-              ),
-            ),
+            signUp: SignUpUseCase(_authRepository),
+            signIn: SignInUseCase(_authRepository),
+            resetPassword: ResetPasswordUseCase(_authRepository),
           ),
         ),
 
@@ -81,53 +117,36 @@ class _MyAppState extends State<MyApp> {
 
         ChangeNotifierProvider(
           create: (_) => DashboardProvider(
-            fetchUserDetailsUsecase: FetchUserDetailsUsecase(
-              UserDetailsRepositoryImpl(
-                remoteDataSource: UserRemoteDataSourceImpl(
-                  firebaseAuth: FirebaseAuth.instance,
-                  firestore: FirebaseFirestore.instance,
-                ),
-              ),
-            ),
+            fetchUserDetailsUsecase: FetchUserDetailsUsecase(_userRepository),
           ),
         ),
 
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(
-            addCategoryUsecase: AddCategoryUsecase(
-              CategoryRepositoryImpl(
-                local: CategoryLocalDatasource(),
-                remote: CategoryRemoteDatasource(
-                  FirebaseFirestore.instance,
-                  FirebaseAuth.instance,
-                ),
-              ),
+            addCategoryUsecase: AddCategoryUsecase(_categoryRepository),
+            getCategoryUsecase: GetCategoryUsecase(_categoryRepository),
+            deleteCategoryUsecase: DeleteCategoryUsecase(_categoryRepository),
+            isCategoryDuplicatedUseCase: IsCategoryDuplicatedUseCase(
+              repository: _categoryRepository,
             ),
-            getCategoryUsecase: GetCategoryUsecase(
-              CategoryRepositoryImpl(
-                local: CategoryLocalDatasource(),
-                remote: CategoryRemoteDatasource(
-                  FirebaseFirestore.instance,
-                  FirebaseAuth.instance,
-                ),
-              ),
-            ),
-            deleteCategoryUsecase: DeleteCategoryUsecase(
-              CategoryRepositoryImpl(
-                local: CategoryLocalDatasource(),
-                remote: CategoryRemoteDatasource(
-                  FirebaseFirestore.instance,
-                  FirebaseAuth.instance,
-                ),
-              ),
+          ),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => IncomeProvider(
+            addIncomeUsecase: AddIncomeUsecase(
+              repository: _incomeRepositoryImpl,
             ),
           ),
         ),
       ],
 
       child: MaterialApp(
+        builder: (context, child) {
+          ThemeHelper.init(context);
+          return child!;
+        },
         routes: {
-          // AppRoutes.splash: (_) => const SplashScreen(),
           AppRoutes.login: (_) => const LoginPage(),
           AppRoutes.register: (_) => const RegistrationPage(),
           AppRoutes.forgotPassword: (_) => const ForgotPassword(),
@@ -137,7 +156,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
-        themeAnimationDuration: Duration(seconds: 2),
+        themeAnimationDuration: const Duration(milliseconds: 300),
         themeMode: ThemeMode.system,
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -145,10 +164,15 @@ class _MyAppState extends State<MyApp> {
             if (asyncSnapshot.hasData) {
               return const HomePage();
             }
-            return LoginPage();
+            return const LoginPage();
           },
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

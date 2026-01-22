@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/dashboard/domain/usecases/fetch_user_details_usecase.dart';
+import 'package:expense_tracker/features/homepage/domain/usecases/fetch_user_details_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

@@ -1,3 +1,4 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class CustPrimaryButton extends StatefulWidget {
@@ -20,8 +21,8 @@ class _CustPrimaryButtonState extends State<CustPrimaryButton> {
       onPressed: widget.function,
       style: ElevatedButton.styleFrom(
         elevation: 3,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: ThemeHelper.primary,
+        foregroundColor: ThemeHelper.onPrimary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(8),
         ),
@@ -29,7 +30,7 @@ class _CustPrimaryButtonState extends State<CustPrimaryButton> {
       child: Text(
         widget.label,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          color: Theme.of(context).colorScheme.onPrimary,
+          color: ThemeHelper.onPrimary,
           letterSpacing: 0.8,
         ),
       ),
@@ -56,10 +57,7 @@ class _CustSecondaryButtonState extends State<CustSecondaryButton> {
     return OutlinedButton(
       onPressed: widget.function,
       style: OutlinedButton.styleFrom(
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 2,
-        ),
+        side: BorderSide(color: ThemeHelper.primary, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(8),
         ),
@@ -68,7 +66,7 @@ class _CustSecondaryButtonState extends State<CustSecondaryButton> {
         widget.label,
         style: TextTheme.of(context).titleMedium!.copyWith(
           letterSpacing: 0.8,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: ThemeHelper.onSurface,
         ),
       ),
     );
@@ -89,7 +87,7 @@ class CustOutlinedButton extends StatefulWidget {
     required this.textStyle,
     required this.borderRadius,
     required this.borderWidth,
-    required this.borderColor, 
+    required this.borderColor,
     required this.function,
   });
 
