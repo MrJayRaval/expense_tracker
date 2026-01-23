@@ -1,3 +1,4 @@
+import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
@@ -24,23 +25,40 @@ final authProvider = AuthProviderr(
 
 Widget createWidgetUnderTest(AuthProviderr provider) {
   return MaterialApp(
+    builder: (context, child) {
+      ThemeHelper.init(context);
+      return child!;
+    },
     home: ChangeNotifierProvider<AuthProviderr>.value(
-      value: authProvider,
-      child: const MaterialApp(
-        home: ForgotPassword()),
+      value: provider,
+      child: const ForgotPassword(),
     ),
   );
 }
 
+
 void main() {
+  late MockResetPasswordUsecase mockResetPassword;
+late MockSignInUsecase mockSignIn;
+late MockSignUpUsecase mockSignUp;
+late AuthProviderr authProvider;
+
 
   setUp(() {
-    final mockResetPassword = MockResetPasswordUsecase();
+  mockResetPassword = MockResetPasswordUsecase();
+  mockSignIn = MockSignInUsecase();
+  mockSignUp = MockSignUpUsecase();
 
-    when(() => mockResetPassword(any())).thenAnswer((_) async {});
+  when(() => mockResetPassword(any()))
+      .thenAnswer((_) async {}); // RETURNS Future<void>
 
-    
-  });
+  authProvider = AuthProviderr(
+    signUp: mockSignUp,
+    signIn: mockSignIn,
+    resetPassword: mockResetPassword,
+  );
+});
+
 
   testWidgets('Forget Password page shold render all required widgets', (
     WidgetTester tester,

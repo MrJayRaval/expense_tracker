@@ -3,7 +3,7 @@ import 'package:expense_tracker/features/auth/presentation/provider/auth_provide
 import 'package:expense_tracker/ui/components/button.dart';
 import 'package:expense_tracker/ui/components/textbox.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/forget_password.dart';
-import 'package:expense_tracker/features/auth/presentation/pages/registration.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/registration_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

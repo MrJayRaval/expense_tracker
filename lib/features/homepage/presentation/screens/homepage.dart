@@ -1,8 +1,9 @@
 import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/History/presenation/Screens/history_page.dart';
 import 'package:expense_tracker/features/category/presenation/Screens/category_page.dart';
 import 'package:expense_tracker/features/homepage/presentation/providers/dashboard_provider.dart';
 import 'package:expense_tracker/features/homepage/presentation/screens/test.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income.dart';
+import 'package:expense_tracker/features/income/presentaion/screens/income_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = const [
     TestingPage(text: 'Dashboard'),
-    TestingPage(text: 'Expense History'),
+    HistoryPage(),
     TestingPage(text: 'Analysis'),
     IncomePage(),
     CategoryPage(),
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     const titles = [
       'FinWise',
-      'Expense History',
+      'History',
       'Summary',
       'Income',
       'Categories',
@@ -151,7 +152,7 @@ class _HomePageState extends State<HomePage> {
       padding: EdgeInsets.zero,
       children: [
         _drawerTile(Icons.home, 'Dashboard', 0),
-        _drawerTile(Icons.receipt_long, 'Expense History', 1),
+        _drawerTile(Icons.receipt_long, 'History', 1),
         _drawerTile(Icons.bar_chart, 'Analysis', 2),
         _drawerTile(Icons.trending_up, 'Income', 3),
         _drawerTile(Icons.category, 'Categories', 4),

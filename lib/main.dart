@@ -7,7 +7,7 @@ import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart
 import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/forget_password.dart';
-import 'package:expense_tracker/features/auth/presentation/pages/registration.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/registration_page.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/features/category/data/datasources/category_local_datasource.dart';
 import 'package:expense_tracker/features/category/data/datasources/category_remote_datasource.dart';
@@ -28,9 +28,9 @@ import 'package:expense_tracker/features/create_profile/presentation/provider/pr
 import 'package:expense_tracker/features/income/data/datasource/add_income_datasource_impl.dart';
 import 'package:expense_tracker/features/income/data/repository/income_repository_impl.dart';
 import 'package:expense_tracker/features/income/domain/usecases/add_income_usecase.dart';
-import 'package:expense_tracker/features/income/presentaion/provider/add_income_provider.dart';
+import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
 import 'package:expense_tracker/firebase_options.dart';
-import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/login_page.dart';
 import 'package:expense_tracker/routes/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

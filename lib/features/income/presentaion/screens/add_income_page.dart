@@ -3,7 +3,7 @@ import 'package:expense_tracker/features/homepage/presentation/screens/homepage.
 import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
 import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
 import 'package:expense_tracker/features/income/domain/entity/income_type_model.dart';
-import 'package:expense_tracker/features/income/presentaion/provider/add_income_provider.dart';
+import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/income_source.dart';
 import 'package:expense_tracker/features/income/presentaion/screens/income_type.dart';
 import 'package:expense_tracker/ui/components/button.dart';
@@ -11,7 +11,6 @@ import 'package:expense_tracker/ui/components/models/calc_input_model.dart';
 import 'package:expense_tracker/ui/components/onscreen_keyboard.dart';
 import 'package:expense_tracker/ui/components/raise_error.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class AddIncomePage extends StatefulWidget {

@@ -3,7 +3,7 @@ import 'package:expense_tracker/features/income/domain/entity/income_details_mod
 import 'package:expense_tracker/features/income/domain/repository/income_repository.dart';
 
 class IncomeRepositoryImpl implements IncomeRepository {
-  final AddIncomeDataSource remote;
+  final IncomeDataSource remote;
 
   IncomeRepositoryImpl({required this.remote});
   @override

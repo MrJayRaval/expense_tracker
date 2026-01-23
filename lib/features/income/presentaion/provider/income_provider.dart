@@ -26,7 +26,6 @@ class IncomeProvider extends ChangeNotifier {
       error = null;
     } catch (e) {
       error = e.toString();
-      success = false;
     } finally {
       isLoading = false;
       notifyListeners();

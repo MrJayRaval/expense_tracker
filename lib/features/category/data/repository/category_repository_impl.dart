@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_tracker/features/category/data/datasources/category_local_datasource.dart';
 import 'package:expense_tracker/features/category/data/datasources/category_remote_datasource.dart';
 import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
@@ -44,8 +46,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<void> deleteCategory(String label) async {
-    await remote.deleteCategory(label);
     await local.deleteCachedCategory(label);
+
+    // Fire-and-forget remote sync for successful UI Update
+    remote.deleteCategory(label);
   }
   
   @override

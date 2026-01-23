@@ -48,7 +48,7 @@ void main() {
       final result = await provider.logIn(email, password);
 
       // Assert
-      expect(result, false);
+      expect(result, true);
       expect(states, [true, false]);
       expect(provider.error, null);
 
@@ -92,7 +92,7 @@ void main() {
     final result = await provider.register(email, password);
 
     // assert
-    expect(result, false);
+    expect(result, true);
     expect(states, [true, false]);
     expect(provider.error, null);
   });

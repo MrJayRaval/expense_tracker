@@ -1,5 +1,5 @@
 import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/login_page.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
 import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
@@ -91,7 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Enter Username';
                         }
-                        return ' ';
+                        return null;
                       },
                     ),
 
@@ -149,8 +149,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                     if (auth.isLoading) const CircularProgressIndicator(),
 
-                    if (auth.error != null) Text(auth.error!),
-
+                    // if (auth.error != null) Text(auth.error!),
                     CustPrimaryButton(
                       label: 'Sign Up',
                       function: () async {
@@ -165,7 +164,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                           if (success) {
                             // get the newly created user
-                            final user = FirebaseAuth.instance.currentUser;
+                            final auth = context.read<FirebaseAuth>();
+                            final user = auth.currentUser;
                             if (user != null) {
                               // create profile in Firestore
                               await context

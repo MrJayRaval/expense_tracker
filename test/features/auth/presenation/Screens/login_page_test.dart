@@ -1,4 +1,5 @@
-import 'package:expense_tracker/features/auth/presentation/pages/login.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/auth/presentation/pages/login_page.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,7 +10,15 @@ class MockAuthProvider extends Mock implements AuthProviderr {}
 
 Widget createWidgetUnderTest(AuthProviderr provider) {
   return MaterialApp(
+    builder: (context, child) {
+      ThemeHelper.init(context);
+      return child!;
+    },
     home: ChangeNotifierProvider<AuthProviderr>.value(
+    builder: (context, child) {
+      ThemeHelper.init(context);
+      return child!;
+    },
       value: provider,
       child: LoginPage(),
     ),

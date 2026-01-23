@@ -17,7 +17,7 @@ class CategoryProvider with ChangeNotifier {
   CategoryProvider({
     required this.addCategoryUsecase,
     required this.getCategoryUsecase,
-    required this.deleteCategoryUsecase, 
+    required this.deleteCategoryUsecase,
     required this.isCategoryDuplicatedUseCase,
   });
 
@@ -48,12 +48,11 @@ class CategoryProvider with ChangeNotifier {
   }
 
   Future<void> delete(String label) async {
-    isLoading = true;
+    categories.removeWhere((item) => item.label == label);
+    notifyListeners();
     await deleteCategoryUsecase.deleteCategory(label);
 
-    categories = await getCategoryUsecase.getCategory();
-    isLoading = false;
-    notifyListeners();
+    // categories = await getCategoryUsecase.getCategory();
   }
 
   Future<bool> isCategoryDuplicated(String label) async {
