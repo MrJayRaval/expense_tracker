@@ -21,7 +21,7 @@ class IncomeProvider extends ChangeNotifier {
     bool success = false;
 
     try {
-      await addIncomeUsecase.addIncome(income);
+      await addIncomeUsecase(income);
       success = true;
       error = null;
     } catch (e) {

@@ -21,7 +21,7 @@ var lightTheme = ThemeData(
 
   // Tertiary (Accent / highlight)
   tertiary: Color(0xFF6366F1), // Indigo
-  onTertiary: Color(0xFFFFFFFF),
+  onTertiary: Color(0xFFE5D9F2),
   tertiaryContainer: Color(0xFFE0E7FF),
   onTertiaryContainer: Color(0xFF1E1B4B),
 
@@ -148,7 +148,7 @@ var darkTheme = ThemeData(
   // Primary
   primary: Color(0xFF93C5FD), // Light Blue
   onPrimary: Color(0xFF0F172A),
-  primaryContainer: Color(0xFF1E40AF),
+  primaryContainer: Color(0xFF0F172A),
   onPrimaryContainer: Color(0xFFDBEAFE),
 
   // Secondary
@@ -159,7 +159,7 @@ var darkTheme = ThemeData(
 
   // Tertiary
   tertiary: Color(0xFFA5B4FC),
-  onTertiary: Color(0xFF1E1B4B),
+  onTertiary: Color(0xFF4D2FB2),
   tertiaryContainer: Color(0xFF312E81),
   onTertiaryContainer: Color(0xFFE0E7FF),
 

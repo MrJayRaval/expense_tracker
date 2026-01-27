@@ -6,7 +6,7 @@ class AddIncomeUsecase {
 
   AddIncomeUsecase({required this.repository});
 
-  Future<void> addIncome(IncomeDetailsModel income) async {
+  Future<void> call(IncomeDetailsModel income) async {
     await repository.addIncome(income);
   }
 }

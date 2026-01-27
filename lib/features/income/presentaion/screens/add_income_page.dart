@@ -1,4 +1,5 @@
 import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/History/presenation/providers/history_provider.dart';
 import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
 import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
 import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
@@ -238,6 +239,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                               dateTime: input.dateTime,
                             );
                             context.read<IncomeProvider>().addIncome(income);
+                            context.read<HistoryProvider>().getIncomes();
 
                             if (provider.error == null) {
                               Navigator.push(

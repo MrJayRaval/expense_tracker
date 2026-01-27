@@ -28,7 +28,7 @@ void main() {
   test("Should call addIncome on AddIncomeUsecase", () async {
     when(() => mockIncomeRepository.addIncome(income)).thenAnswer((_) async {});
 
-    await addIncomeUsecase.addIncome(income);
+    await addIncomeUsecase(income);
 
     verify(() => mockIncomeRepository.addIncome(income)).called(1);
     verifyNoMoreInteractions(mockIncomeRepository);

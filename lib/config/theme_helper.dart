@@ -20,8 +20,11 @@ class ThemeHelper {
   // Color Scheme Accessors (use safe internal getters)
   static Color get primary => _cs.primary;
   static Color get onPrimary => _cs.onPrimary;
+  static Color get primaryContainer => _cs.primaryContainer;
   static Color get secondary => _cs.secondary;
   static Color get onSecondary => _cs.onSecondary;
+  static Color get secondaryContainer => _cs.secondaryContainer;
+  static Color get onSecondaryContainer => _cs.onSecondaryContainer;
   static Color get tertiary => _cs.tertiary;
   static Color get onTertiary => _cs.onTertiary;
   static Color get error => _cs.error;
@@ -36,7 +39,7 @@ class ThemeHelper {
   static Color get surfaceVariant => _cs.surfaceContainerHighest;
   static Color get onSurfaceVariant => _cs.onSurfaceVariant;
   static Color get surfaceContainerHighest => _cs.surfaceContainerHighest;
-  static Color get surfaceBright => _cs.surfaceTint ?? _cs.surface; // fallback
+  static Color get surfaceBright => _cs.surfaceTint; // fallback
   static Color get surfaceDim => _cs.surface; // fallback
   static Color get scrim => _cs.scrim;
 
@@ -57,3 +60,5 @@ class ThemeHelper {
   static TextStyle? get labelMedium => _tt.labelMedium;
   static TextStyle? get labelSmall => _tt.labelSmall;
 }
+
+class TH extends ThemeHelper {}

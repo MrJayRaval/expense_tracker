@@ -27,7 +27,7 @@ void main() {
   );
 
   test("Should call addIncome on IncomeProvider", () async {
-    when(() => mockAddIncomeUsecase.addIncome(income)).thenAnswer((_) async {});
+    when(() => mockAddIncomeUsecase(income)).thenAnswer((_) async {});
 
     final states = <bool>[];
     provider.addListener(() {
@@ -40,7 +40,7 @@ void main() {
     expect(states, [true,false]);
     expect(provider.error, null);
 
-    verify(() => mockAddIncomeUsecase.addIncome(income)).called(1);
+    verify(() => mockAddIncomeUsecase(income)).called(1);
     verifyNoMoreInteractions(mockAddIncomeUsecase);
   });
 }

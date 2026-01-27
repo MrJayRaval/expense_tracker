@@ -68,7 +68,8 @@ class _CategoryPageState extends State<CategoryPage>
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: ThemeHelper.onPrimary,
+                      color: ThemeHelper.primaryContainer,
+                      
                       border: Border.all(color: outlineColor),
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -79,6 +80,7 @@ class _CategoryPageState extends State<CategoryPage>
                           height: 60,
                           width: 60,
                           decoration: BoxDecoration(
+                            
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(6),
                               bottomLeft: Radius.circular(6),

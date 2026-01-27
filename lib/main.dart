@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/config/theme_helper.dart';
 import 'package:expense_tracker/config/themes.dart';
+import 'package:expense_tracker/features/History/data/datasources/history_local_datasource_impl.dart';
+import 'package:expense_tracker/features/History/data/datasources/history_remote_datasource_impl.dart';
+import 'package:expense_tracker/features/History/data/repository/history_repository_impl.dart';
+import 'package:expense_tracker/features/History/domain/usecases/delete_particular_income_usecase.dart';
+import 'package:expense_tracker/features/History/domain/usecases/get_incomes_usecase.dart';
+import 'package:expense_tracker/features/History/presenation/providers/history_provider.dart';
 import 'package:expense_tracker/features/auth/data/data/auth_repository_impl.dart';
 import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart';
@@ -29,6 +35,7 @@ import 'package:expense_tracker/features/income/data/datasource/add_income_datas
 import 'package:expense_tracker/features/income/data/repository/income_repository_impl.dart';
 import 'package:expense_tracker/features/income/domain/usecases/add_income_usecase.dart';
 import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
+import 'package:expense_tracker/features/income/presentaion/screens/add_income_page.dart';
 import 'package:expense_tracker/firebase_options.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/login_page.dart';
 import 'package:expense_tracker/routes/routes.dart';
@@ -43,6 +50,10 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
 
   runApp(MyApp());
 }
@@ -59,6 +70,7 @@ class _MyAppState extends State<MyApp> {
   late final CategoryRepositoryImpl _categoryRepository;
   late final UserDetailsRepositoryImpl _userRepository;
   late final IncomeRepositoryImpl _incomeRepositoryImpl;
+  late final HistoryRepositoryImpl _historyRepositoryImpl;
 
   @override
   void initState() {
@@ -87,6 +99,14 @@ class _MyAppState extends State<MyApp> {
       remote: AddIncomeDataSourceImpl(
         firebaseAuth: FirebaseAuth.instance,
         firestore: FirebaseFirestore.instance,
+      ),
+    );
+
+    _historyRepositoryImpl = HistoryRepositoryImpl(
+      local: HistoryLocalDatasourceImpl(),
+      remote: HistoryRemoteDatasourceImpl(
+        firestore: FirebaseFirestore.instance,
+        auth: FirebaseAuth.instance,
       ),
     );
   }
@@ -139,6 +159,15 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
+
+        ChangeNotifierProvider(
+          create: (_) => HistoryProvider(
+            getIncomesUsecase: GetIncomesUsecase(_historyRepositoryImpl),
+            deleteParticularIncomeUsecase: DeleteParticularIncomeUsecase(
+              _historyRepositoryImpl,
+            ),
+          ),
+        ),
       ],
 
       child: MaterialApp(
@@ -152,6 +181,8 @@ class _MyAppState extends State<MyApp> {
           AppRoutes.forgotPassword: (_) => const ForgotPassword(),
           AppRoutes.dashboard: (_) => const HomePage(),
           AppRoutes.category: (_) => const CategoryPage(),
+          AppRoutes.addIncome: (_) => const AddIncomePage(),
+
         },
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
