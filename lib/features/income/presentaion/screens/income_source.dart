@@ -1,5 +1,5 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
+import '../../../../config/theme_helper.dart';
+import '../../domain/entity/income_source_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

@@ -1,5 +1,5 @@
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
-import 'package:expense_tracker/features/income/domain/usecases/add_income_usecase.dart';
+import '../../domain/entity/income_details_model.dart';
+import '../../domain/usecases/add_income_usecase.dart';
 import 'package:flutter/material.dart';
 
 class IncomeProvider extends ChangeNotifier {

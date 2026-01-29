@@ -1,6 +1,6 @@
-import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart';
-import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
-import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
+import '../../domain/usecases/reset_usecase.dart';
+import '../../domain/usecases/sign_in_usecase.dart';
+import '../../domain/usecases/sign_up_usecase.dart';
 import 'package:flutter/widgets.dart';
 
 class AuthProviderr with ChangeNotifier {

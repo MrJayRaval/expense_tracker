@@ -1,4 +1,4 @@
-import 'package:expense_tracker/config/theme_helper.dart';
+import '../../config/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 SnackBar buildErrorSnackBar(String message) {

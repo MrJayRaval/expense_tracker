@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:expense_tracker/features/category/data/datasources/category_local_datasource.dart';
-import 'package:expense_tracker/features/category/data/datasources/category_remote_datasource.dart';
-import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
-import 'package:expense_tracker/features/category/domain/repository/category_repository.dart';
+import '../datasources/category_local_datasource.dart';
+import '../datasources/category_remote_datasource.dart';
+import '../../domain/entities/category_model.dart';
+import '../../domain/repository/category_repository.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryLocalDatasource local;

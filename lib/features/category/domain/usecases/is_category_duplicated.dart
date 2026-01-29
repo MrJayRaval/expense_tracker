@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/category/domain/repository/category_repository.dart';
+import '../repository/category_repository.dart';
 
 class IsCategoryDuplicatedUseCase {
   final CategoryRepository repository;

@@ -1,5 +1,5 @@
-import 'package:expense_tracker/features/auth/data/data/auth_repository_impl.dart';
-import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../../../../linux/lib/features/auth/data/repository/auth_repository_impl.dart';
+import '../../../../../linux/lib/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

@@ -1,8 +1,8 @@
-import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
-import 'package:expense_tracker/features/category/domain/usecases/add_category_usecase.dart';
-import 'package:expense_tracker/features/category/domain/usecases/delete_category_usecase.dart';
-import 'package:expense_tracker/features/category/domain/usecases/get_category_usecase.dart';
-import 'package:expense_tracker/features/category/domain/usecases/is_category_duplicated.dart';
+import '../../domain/entities/category_model.dart';
+import '../../domain/usecases/add_category_usecase.dart';
+import '../../domain/usecases/delete_category_usecase.dart';
+import '../../domain/usecases/get_category_usecase.dart';
+import '../../domain/usecases/is_category_duplicated.dart';
 import 'package:flutter/material.dart';
 
 class CategoryProvider with ChangeNotifier {

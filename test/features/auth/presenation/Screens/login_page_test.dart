@@ -1,6 +1,6 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/auth/presentation/pages/login_page.dart';
-import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
+import '../../../../../linux/lib/config/theme_helper.dart';
+import '../../../../../linux/lib/features/auth/presentation/screen/login_page.dart';
+import '../../../../../linux/lib/features/auth/presentation/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

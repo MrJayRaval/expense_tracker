@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/category/domain/entities/category_model.dart';
+import '../entities/category_model.dart';
 
 abstract class CategoryRepository {
   Future<List<CategoryModel>> getAllCategories();

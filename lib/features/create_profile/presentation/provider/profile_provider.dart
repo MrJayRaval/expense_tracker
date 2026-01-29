@@ -1,5 +1,5 @@
-import 'package:expense_tracker/features/create_profile/data/datasources/profile_remote_data_sources.dart';
-import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
+import '../../data/datasources/profile_remote_data_sources.dart';
+import '../../data/models/user_profile_model.dart';
 import 'package:flutter/material.dart';
 
 class ProfileProvider with ChangeNotifier {

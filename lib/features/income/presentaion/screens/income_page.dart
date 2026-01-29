@@ -1,7 +1,7 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/add_income_page.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income_source.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income_type.dart';
+import '../../../../config/theme_helper.dart';
+import 'add_income_page.dart';
+import 'income_source.dart';
+import 'income_type.dart';
 import 'package:flutter/material.dart';
 
 class IncomePage extends StatefulWidget {

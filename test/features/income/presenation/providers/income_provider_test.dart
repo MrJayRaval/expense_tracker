@@ -1,9 +1,9 @@
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
-import 'package:expense_tracker/features/income/domain/usecases/add_income_usecase.dart';
-import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
+import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
+import '../../../../../linux/lib/features/income/domain/usecases/add_income_usecase.dart';
+import '../../../../../linux/lib/features/income/presentaion/provider/income_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 
 class MockAddIncomeUsecase extends Mock implements AddIncomeUsecase {}
 
@@ -35,9 +35,9 @@ void main() {
     });
 
     final result = await provider.addIncome(income);
-    print(result);
+    debugPrint('$result');
     expect(result, true);
-    expect(states, [true,false]);
+    expect(states, [true, false]);
     expect(provider.error, null);
 
     verify(() => mockAddIncomeUsecase(income)).called(1);

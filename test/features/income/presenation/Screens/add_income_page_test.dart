@@ -1,7 +1,7 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
-import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/add_income_page.dart';
+import '../../../../../linux/lib/config/theme_helper.dart';
+import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
+import '../../../../../linux/lib/features/income/presentaion/provider/income_provider.dart';
+import '../../../../../linux/lib/features/income/presentaion/screens/add_income_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

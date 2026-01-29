@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'auth_remote_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // abstract class AuthRemoteDataSource {

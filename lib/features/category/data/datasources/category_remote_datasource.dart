@@ -29,7 +29,6 @@ class CategoryRemoteDatasource {
   }
 
   Future<bool> isCategoryDuplicated(String label) async {
-    String userId = firebaseAuth.currentUser!.uid;
     final response = await firestore
         .collection('users')
         .where('categories', arrayContains: label)

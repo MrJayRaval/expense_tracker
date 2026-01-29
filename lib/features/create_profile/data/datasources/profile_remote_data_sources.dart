@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expense_tracker/features/create_profile/data/models/user_profile_model.dart';
+import '../models/user_profile_model.dart';
 
 class ProfileRemoteDataSourceImpl {
   final FirebaseFirestore firestore;

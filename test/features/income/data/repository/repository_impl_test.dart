@@ -1,6 +1,6 @@
-import 'package:expense_tracker/features/income/data/repository/income_repository_impl.dart';
-import 'package:expense_tracker/features/income/domain/datasource/data_remote_source.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
+import '../../../../../linux/lib/features/income/data/repository/income_repository_impl.dart';
+import '../../../../../linux/lib/features/income/domain/datasource/data_remote_source.dart';
+import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expense_tracker/features/income/domain/datasource/data_remote_source.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
+import '../../domain/datasource/data_remote_source.dart';
+import '../../domain/entity/income_details_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AddIncomeDataSourceImpl implements IncomeDataSource {

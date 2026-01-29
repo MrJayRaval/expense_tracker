@@ -1,9 +1,9 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/History/presenation/Screens/history_page.dart';
-import 'package:expense_tracker/features/category/presenation/Screens/category_page.dart';
-import 'package:expense_tracker/features/homepage/presentation/providers/dashboard_provider.dart';
-import 'package:expense_tracker/features/homepage/presentation/screens/test.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income_page.dart';
+import '../../../../config/theme_helper.dart';
+import '../../../history/presenation/Screens/history_page.dart';
+import '../../../category/presenation/Screens/category_page.dart';
+import '../providers/dashboard_provider.dart';
+import 'test.dart';
+import '../../../income/presentaion/screens/income_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';

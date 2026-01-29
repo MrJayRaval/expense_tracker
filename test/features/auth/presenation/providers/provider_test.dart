@@ -1,7 +1,7 @@
-import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart';
-import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
-import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
-import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
+import '../../../../../linux/lib/features/auth/domain/usecases/reset_usecase.dart';
+import '../../../../../linux/lib/features/auth/domain/usecases/sign_in_usecase.dart';
+import '../../../../../linux/lib/features/auth/domain/usecases/sign_up_usecase.dart';
+import '../../../../../linux/lib/features/auth/presentation/provider/auth_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

@@ -1,5 +1,5 @@
-import 'package:expense_tracker/features/homepage/data/datasources/user_remote_data_source.dart';
-import 'package:expense_tracker/features/homepage/domain/repository/user_details_repository.dart';
+import '../datasources/user_remote_data_source.dart';
+import '../../domain/repository/user_details_repository.dart';
 
 class UserDetailsRepositoryImpl implements UserDetailsRepository {
   final UserRemoteDataSource remoteDataSource;

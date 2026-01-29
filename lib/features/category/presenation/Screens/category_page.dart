@@ -1,5 +1,5 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/category/presenation/providers/category_provider.dart';
+import '../../../../config/theme_helper.dart';
+import '../providers/category_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +24,7 @@ class _CategoryPageState extends State<CategoryPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().load();
     });
+
   }
 
   Widget _cachedSvgIcon(String iconPath, double height, Color color) {

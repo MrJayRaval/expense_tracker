@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/auth/domain/repositories/auth_repository.dart';
+import '../repositories/auth_repository.dart';
 
 class SignInUseCase {
   final AuthRepository repository;

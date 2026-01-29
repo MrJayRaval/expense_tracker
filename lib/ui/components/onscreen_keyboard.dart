@@ -1,12 +1,25 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/ui/components/models/calc_input_model.dart';
-import 'package:expense_tracker/ui/components/textbox.dart';
+import '../../config/theme_helper.dart';
+import 'models/calc_input_model.dart';
+import 'textbox.dart';
 import 'package:flutter/material.dart';
 
 class OnScreenKeyBoard extends StatefulWidget {
+  final bool? isEditMode;
+
+  final String? calculationDisplay;
+  final DateTime? selectedDate;
+  final TimeOfDay? selectedTime;
+  final String? notes;
   final ValueChanged<TransactionInput>? onCompleted;
 
-  const OnScreenKeyBoard({super.key, required this.onCompleted});
+  const OnScreenKeyBoard({
+    super.key,
+    required this.onCompleted,
+    this.isEditMode,
+    this.calculationDisplay,
+    this.selectedDate,
+    this.selectedTime, this.notes,
+  });
 
   @override
   State<OnScreenKeyBoard> createState() => _OnScreenKeyBoardState();
@@ -16,24 +29,40 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final addNotesTextEditingController = TextEditingController();
 
-  String calculationDisplay = '0';
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
+  String? calculationDisplay;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEditMode == false) {
+      calculationDisplay = '0';
+      selectedDate = DateTime.now();
+      selectedTime = TimeOfDay.now();
+    } else {
+      calculationDisplay = widget.calculationDisplay;
+      selectedDate = widget.selectedDate;
+      selectedTime = widget.selectedTime;
+      addNotesTextEditingController.text = widget.notes!;
+    }
+  }
 
   void _emitValue() {
     if (calculationDisplay == 'Error') return;
 
     final dateTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      selectedTime.hour,
-      selectedTime.minute,
+      selectedDate!.year,
+      selectedDate!.month,
+      selectedDate!.day,
+      selectedTime!.hour,
+      selectedTime!.minute,
     );
 
     widget.onCompleted!(
       TransactionInput(
-        amount: double.tryParse(calculationDisplay) ?? 0,
+        amount: double.tryParse(calculationDisplay!) ?? 0,
         notes: addNotesTextEditingController.text.trim(),
         dateTime: dateTime,
       ),
@@ -45,17 +74,17 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
       if (value == 'C') {
         calculationDisplay = '0';
       } else if (value == 'DEL') {
-        if (calculationDisplay.length > 1) {
-          calculationDisplay = calculationDisplay.substring(
+        if (calculationDisplay!.length > 1) {
+          calculationDisplay = calculationDisplay!.substring(
             0,
-            calculationDisplay.length - 1,
+            calculationDisplay!.length - 1,
           );
         } else {
           calculationDisplay = '0';
         }
       } else if (value == '=') {
         try {
-          final result = _evaluateExpression(calculationDisplay);
+          final result = _evaluateExpression(calculationDisplay!);
           calculationDisplay = result.toString();
         } catch (e) {
           calculationDisplay = 'Error';
@@ -64,7 +93,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
         if (calculationDisplay == '0' && value != '.') {
           calculationDisplay = value;
         } else {
-          calculationDisplay += value;
+          calculationDisplay = calculationDisplay! + value;
         }
       }
     });
@@ -99,7 +128,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
   Future<void> _selectTime() async {
     final pickedTime = await showTimePicker(
       context: context,
-      initialTime: selectedTime,
+      initialTime: selectedTime!,
     );
     if (pickedTime != null) {
       setState(() => selectedTime = pickedTime);
@@ -137,9 +166,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               borderColor: ThemeHelper.outline,
             ),
           ),
-      
+
           SizedBox(height: 20),
-      
+
           // Calculator Display
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -154,7 +183,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                     color: ThemeHelper.surface,
                   ),
                   child: Text(
-                    calculationDisplay,
+                    calculationDisplay!,
                     textAlign: TextAlign.right,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
@@ -163,9 +192,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               SizedBox(width: 10),
             ],
           ),
-      
+
           SizedBox(height: 12),
-      
+
           // Calculator Grid
           GridView.count(
             crossAxisCount: 4,
@@ -192,9 +221,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               _calcButton('+'),
             ],
           ),
-      
+
           SizedBox(height: 16),
-      
+
           // Clear Button
           Row(
             children: [
@@ -222,9 +251,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                   ),
                 ),
               ),
-      
+
               SizedBox(width: 10),
-      
+
               Expanded(
                 child: Container(
                   // width: double.minPositive,
@@ -256,9 +285,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               ),
             ],
           ),
-      
+
           SizedBox(height: 20),
-      
+
           // Date and Time Selection
           Row(
             children: [
@@ -280,7 +309,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
+                          '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -307,7 +336,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                          '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -317,7 +346,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               ),
             ],
           ),
-      
+
           SizedBox(height: 16),
         ],
       ),

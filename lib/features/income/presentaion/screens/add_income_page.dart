@@ -1,21 +1,29 @@
-import 'package:expense_tracker/config/theme_helper.dart';
-import 'package:expense_tracker/features/History/presenation/providers/history_provider.dart';
-import 'package:expense_tracker/features/homepage/presentation/screens/homepage.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_details_model.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_source_model.dart';
-import 'package:expense_tracker/features/income/domain/entity/income_type_model.dart';
-import 'package:expense_tracker/features/income/presentaion/provider/income_provider.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income_source.dart';
-import 'package:expense_tracker/features/income/presentaion/screens/income_type.dart';
-import 'package:expense_tracker/ui/components/button.dart';
-import 'package:expense_tracker/ui/components/models/calc_input_model.dart';
-import 'package:expense_tracker/ui/components/onscreen_keyboard.dart';
-import 'package:expense_tracker/ui/components/raise_error.dart';
+import '../../../../config/theme_helper.dart';
+import '../../../history/presenation/providers/history_provider.dart';
+import '../../../homepage/presentation/screens/homepage.dart';
+import '../../domain/entity/income_details_model.dart';
+import '../../domain/entity/income_source_model.dart';
+import '../../domain/entity/income_type_model.dart';
+import '../provider/income_provider.dart';
+import 'income_source.dart';
+import 'income_type.dart';
+import '../../../../ui/components/button.dart';
+import '../../../../ui/components/models/calc_input_model.dart';
+import '../../../../ui/components/onscreen_keyboard.dart';
+import '../../../../ui/components/raise_error.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AddIncomePage extends StatefulWidget {
-  const AddIncomePage({super.key});
+  final IncomeDetailsModel? income;
+  final bool? isEditMode;
+  final String? incomeID;
+  const AddIncomePage({
+    super.key,
+    this.income,
+    this.isEditMode = false,
+    this.incomeID = "",
+  });
 
   @override
   State<AddIncomePage> createState() => _AddIncomePageState();
@@ -23,7 +31,6 @@ class AddIncomePage extends StatefulWidget {
 
 class _AddIncomePageState extends State<AddIncomePage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final addNotesTextEditingController = TextEditingController();
   late TransactionInput input;
 
   int? selectedIncomeIndex;
@@ -33,7 +40,26 @@ class _AddIncomePageState extends State<AddIncomePage> {
   @override
   void initState() {
     super.initState();
-    input = TransactionInput(notes: '', amount: 0, dateTime: DateTime.now());
+
+    if (widget.income != null) {
+      final i = widget.income!;
+
+      input = TransactionInput(
+        notes: i.notes,
+        amount: i.amount,
+        dateTime: i.dateTime,
+      );
+      selectedIncomeType = IncomeType(
+        label: i.incomeTypeLabel,
+        icon: i.incomeTypeIcon,
+      );
+      selectedIncomeSource = IncomeSource(
+        label: i.incomeSourceLabel,
+        icon: i.incomeSourceIcon,
+      );
+    } else {
+      input = TransactionInput(notes: '', amount: 0, dateTime: DateTime.now());
+    }
   }
 
   @override
@@ -47,6 +73,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
       }
     });
 
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -59,7 +88,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Add Income',
+                    widget.income != null ? 'Edit Income' : 'Add Income',
                     style: Theme.of(context).textTheme.titleLarge!.copyWith(
                       color: ThemeHelper.onSurface,
                     ),
@@ -161,6 +190,11 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   SizedBox(height: 15),
 
                   OnScreenKeyBoard(
+                    isEditMode: widget.isEditMode,
+                    notes: input.notes,
+                    calculationDisplay: input.amount.toString(),
+                    selectedDate: input.dateTime,
+                    selectedTime: TimeOfDay.fromDateTime(input.dateTime),
                     onCompleted: (TransactionInput value) {
                       input = value;
                     },
@@ -178,7 +212,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {
+                        onTap: () async {
                           List<String> errors = [];
                           if ((input.notes).isEmpty) {
                             // TransactionInput fields are immutable/final. Create a new
@@ -237,22 +271,47 @@ class _AddIncomePageState extends State<AddIncomePage> {
                               notes: input.notes,
                               amount: input.amount,
                               dateTime: input.dateTime,
+                              id: widget.incomeID!,
                             );
-                            context.read<IncomeProvider>().addIncome(income);
-                            context.read<HistoryProvider>().getIncomes();
+
+                            if (widget.isEditMode == true) {
+                              // Await update then refresh history so UI reflects changes
+                              context.read<HistoryProvider>().updateIncome(
+                                income,
+                              );
+                              await context
+                                  .read<HistoryProvider>()
+                                  .getIncomes();
+                            } else {
+                              // Await add, then refresh history. Also optimistically add to history list.
+                              context.read<IncomeProvider>().addIncome(income);
+                              context
+                                  .read<HistoryProvider>()
+                                  .addIncomeToHistory(income);
+                              await context
+                                  .read<HistoryProvider>()
+                                  .getIncomes();
+                            }
+
+                            if (!mounted) return;
 
                             if (provider.error == null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomePage(),
-                                ),
-                              );
+                              if (widget.isEditMode == true) {
+                                navigator.pop();
+                              } else {
+                                navigator.push(
+                                  MaterialPageRoute(
+                                    builder: (context) => HomePage(),
+                                  ),
+                                );
+                              }
 
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffoldMessenger.showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    "Income Added Successfully",
+                                    widget.isEditMode == true
+                                        ? "Income Updated Successfully"
+                                        : "Income Added Successfully",
                                     style: ThemeHelper.bodyMedium!.copyWith(
                                       color: ThemeHelper.onSecondary,
                                     ),
@@ -277,7 +336,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                               provider.isLoading
                                   ? CircularProgressIndicator()
                                   : Text(
-                                      'Save',
+                                      widget.income != null ? 'Update' : 'Save',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyLarge!
