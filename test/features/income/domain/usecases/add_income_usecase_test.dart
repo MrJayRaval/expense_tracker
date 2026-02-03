@@ -1,6 +1,6 @@
-import '../../../../../linux/lib/features/income/data/repository/income_repository_impl.dart';
-import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
-import '../../../../../linux/lib/features/income/domain/usecases/add_income_usecase.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/data/repository/income_repository_impl.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/domain/usecases/add_income_usecase.dart';
+import 'package:expense_tracker/ui/models/trasaction_details_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -15,32 +15,34 @@ void main() {
     addIncomeUsecase = AddIncomeUsecase(repository: mockIncomeRepository);
   });
 
-  IncomeDetailsModel income = IncomeDetailsModel(
-    incomeTypeLabel: 'Food',
-    incomeTypeIcon: 'any',
-    incomeSourceLabel: 'incomeSourceLabel',
-    incomeSourceIcon: 'incomeSourceIcon',
+  TransactionDetailsModel transaction = TransactionDetailsModel(
     notes: 'notes',
     amount: 50,
     dateTime: DateTime(2025),
+    transactionCategoryLabel: '',
+    transactionCategoryIcon: '',
+    transactionSourceLabel: '',
+    transactionSourceIcon: '',
   );
 
-  test("Should call addIncome on AddIncomeUsecase", () async {
-    when(() => mockIncomeRepository.addIncome(income)).thenAnswer((_) async {});
+  test("Should call addTransaction on AddIncomeUsecase", () async {
+    when(
+      () => mockIncomeRepository.addTransaction(any(),transaction),
+    ).thenAnswer((_) async {});
 
-    await addIncomeUsecase(income);
+    await addIncomeUsecase(any(),transaction);
 
-    verify(() => mockIncomeRepository.addIncome(income)).called(1);
+    verify(() => mockIncomeRepository.addTransaction(any(),transaction)).called(1);
     verifyNoMoreInteractions(mockIncomeRepository);
   });
 
-  test("Should throw exception when addIncome fails", () async {
+  test("Should throw exception when addTransaction fails", () async {
     when(
-      () => mockIncomeRepository.addIncome(income),
+      () => mockIncomeRepository.addTransaction(any(), transaction),
     ).thenThrow(Exception('Income Addition Failed'));
 
     expectLater(
-      () => mockIncomeRepository.addIncome(income),
+      () => mockIncomeRepository.addTransaction(any(), transaction),
       throwsA(isA<Exception>()),
     );
   });

@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/features/homepage/features/dashboard/presenation/providers/dashboard_provider.dart';
+import 'package:expense_tracker/ui/models/enum.dart';
 import 'config/theme_helper.dart';
 import 'config/themes.dart';
-import 'features/history/data/datasources/history_local_datasource_impl.dart';
-import 'features/history/data/datasources/history_remote_datasource_impl.dart';
-import 'features/history/data/repository/history_repository_impl.dart';
-import 'features/history/domain/usecases/delete_particular_income_usecase.dart';
-import 'features/history/domain/usecases/get_incomes_usecase.dart';
-import 'features/history/domain/usecases/group_by_date_usecase.dart';
-import 'features/history/domain/usecases/update_income_usecase.dart';
-import 'features/history/presenation/providers/history_provider.dart';
+import 'features/homepage/features/history/data/datasources/history_local_datasource_impl.dart';
+import 'features/homepage/features/history/data/datasources/history_remote_datasource_impl.dart';
+import 'features/homepage/features/history/data/repository/history_repository_impl.dart';
+import 'features/homepage/features/history/domain/usecases/delete_particular_transaction_usecase.dart';
+import 'features/homepage/features/history/domain/usecases/get_transaction_usecase.dart';
+import 'features/homepage/features/history/domain/usecases/group_by_date_usecase.dart';
+import 'features/homepage/features/history/domain/usecases/update_transaction_usecase.dart';
+import 'features/homepage/features/history/presenation/providers/history_provider.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'features/auth/domain/usecases/reset_usecase.dart';
@@ -17,27 +19,26 @@ import 'features/auth/domain/usecases/sign_up_usecase.dart';
 import 'features/auth/presentation/screen/forget_password.dart';
 import 'features/auth/presentation/screen/registration_page.dart';
 import 'features/auth/presentation/provider/auth_provider.dart';
-import 'features/category/data/datasources/category_local_datasource.dart';
-import 'features/category/data/datasources/category_remote_datasource.dart';
-import 'features/category/data/repository/category_repository_impl.dart';
-import 'features/category/domain/usecases/add_category_usecase.dart';
-import 'features/category/domain/usecases/delete_category_usecase.dart';
-import 'features/category/domain/usecases/get_category_usecase.dart';
-import 'features/category/domain/usecases/is_category_duplicated.dart';
-import 'features/category/presenation/Screens/category_page.dart';
-import 'features/category/presenation/providers/category_provider.dart';
+import 'features/homepage/features/category/data/datasources/category_local_datasource.dart';
+import 'features/homepage/features/category/data/datasources/category_remote_datasource.dart';
+import 'features/homepage/features/category/data/repository/category_repository_impl.dart';
+import 'features/homepage/features/category/domain/usecases/add_category_usecase.dart';
+import 'features/homepage/features/category/domain/usecases/delete_category_usecase.dart';
+import 'features/homepage/features/category/domain/usecases/get_category_usecase.dart';
+import 'features/homepage/features/category/domain/usecases/is_category_duplicated.dart';
+import 'features/homepage/features/category/presenation/Screens/category_page.dart';
+import 'features/homepage/features/category/presenation/providers/category_provider.dart';
 import 'features/homepage/data/data/user_repository.dart';
 import 'features/homepage/data/datasources/user_remote_data_source.dart';
 import 'features/homepage/domain/usecases/fetch_user_details_usecase.dart';
 import 'features/homepage/presentation/providers/dashboard_provider.dart';
 import 'features/homepage/presentation/screens/homepage.dart';
-import 'features/create_profile/data/datasources/profile_remote_data_sources.dart';
-import 'features/create_profile/presentation/provider/profile_provider.dart';
-import 'features/income/data/datasource/add_income_datasource_impl.dart';
-import 'features/income/data/repository/income_repository_impl.dart';
-import 'features/income/domain/usecases/add_income_usecase.dart';
-import 'features/income/presentaion/provider/income_provider.dart';
-import 'features/income/presentaion/screens/add_income_page.dart';
+import 'features/auth/features/create_profile/data/datasources/profile_remote_data_sources.dart';
+import 'features/auth/features/create_profile/presentation/provider/profile_provider.dart';
+import 'features/homepage/features/transaction/data/datasource/add_transaction_datasource_impl.dart';
+import 'features/homepage/features/transaction/data/repository/income_repository_impl.dart';
+import 'features/homepage/features/transaction/domain/usecases/add_income_usecase.dart';
+import 'features/homepage/features/transaction/presentaion/provider/transaction_provider.dart';
 import 'firebase_options.dart';
 import 'features/auth/presentation/screen/login_page.dart';
 import 'routes/routes.dart';
@@ -52,16 +53,14 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
-  // Ensure the local cache box is opened before the UI can access it
-  // await Hive.openBox('incomes');
 
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
   );
 
   await Future.wait([
-    Hive.openBox('expenseCategory'),
-    Hive.openBox('incomes'),
+    Hive.openBox(TransactionType.expense.name),
+    Hive.openBox(TransactionType.income.name),
   ]);
 
   runApp(MyApp());
@@ -105,7 +104,7 @@ class _MyAppState extends State<MyApp> {
     );
 
     _incomeRepositoryImpl = IncomeRepositoryImpl(
-      remote: AddIncomeDataSourceImpl(
+      remote: TransactionDataSourceImpl(
         firebaseAuth: FirebaseAuth.instance,
         firestore: FirebaseFirestore.instance,
       ),
@@ -145,10 +144,12 @@ class _MyAppState extends State<MyApp> {
         ),
 
         ChangeNotifierProvider(
-          create: (_) => DashboardProvider(
+          create: (_) => HomePageProvider(
             fetchUserDetailsUsecase: FetchUserDetailsUsecase(_userRepository),
           ),
         ),
+
+        ChangeNotifierProvider(create: (_) => DashboardProvider(getTransactionsUsecase: GetTransactionsUsecase(_historyRepositoryImpl))),
 
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(
@@ -162,7 +163,7 @@ class _MyAppState extends State<MyApp> {
         ),
 
         ChangeNotifierProvider(
-          create: (_) => IncomeProvider(
+          create: (_) => TransactionProvider(
             addIncomeUsecase: AddIncomeUsecase(
               repository: _incomeRepositoryImpl,
             ),
@@ -171,13 +172,17 @@ class _MyAppState extends State<MyApp> {
 
         ChangeNotifierProvider(
           create: (_) => HistoryProvider(
-            getIncomesUsecase: GetIncomesUsecase(_historyRepositoryImpl),
-            deleteParticularIncomeUsecase: DeleteParticularIncomeUsecase(
+            getTransactionUsecase: GetTransactionsUsecase(
               _historyRepositoryImpl,
             ),
-            updateIncomeUsecase: UpdateIncomeUsecase(
+            deleteParticularTransactionUsecase:
+                DeleteParticularTransactionUsecase(_historyRepositoryImpl),
+            updateTransactionUsecase: UpdateTransactionUsecase(
               repository: _historyRepositoryImpl,
-            ), groupByDateUseCase: GroupByDateUseCase(repository: _historyRepositoryImpl),
+            ),
+            groupByDateUseCase: GroupByDateUseCase(
+              repository: _historyRepositoryImpl,
+            ),
           ),
         ),
       ],
@@ -193,7 +198,6 @@ class _MyAppState extends State<MyApp> {
           AppRoutes.forgotPassword: (_) => const ForgotPassword(),
           AppRoutes.dashboard: (_) => const HomePage(),
           AppRoutes.category: (_) => const CategoryPage(),
-          AppRoutes.addIncome: (_) => const AddIncomePage(),
         },
         debugShowCheckedModeBanner: false,
         theme: lightTheme,

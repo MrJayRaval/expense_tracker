@@ -1,10 +1,10 @@
-import '../../../../../linux/lib/features/income/data/repository/income_repository_impl.dart';
-import '../../../../../linux/lib/features/income/domain/datasource/data_remote_source.dart';
-import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/data/repository/income_repository_impl.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/domain/datasource/data_remote_source.dart';
+import 'package:expense_tracker/ui/models/trasaction_details_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockIncomeDataSource extends Mock implements IncomeDataSource {}
+class MockIncomeDataSource extends Mock implements TransactionDataSource {}
 
 void main() {
   late MockIncomeDataSource mockIncomeDataSource;
@@ -15,43 +15,42 @@ void main() {
     repository = IncomeRepositoryImpl(remote: mockIncomeDataSource);
   });
 
-  test('Should call addIncome on datasource', () async {
-    IncomeDetailsModel income = IncomeDetailsModel(
-      incomeTypeLabel: 'Food',
-      incomeTypeIcon: 'any',
-      incomeSourceLabel: 'incomeSourceLabel',
-      incomeSourceIcon: 'incomeSourceIcon',
+  test('Should call addTransaction on datasource', () async {
+    TransactionDetailsModel income = TransactionDetailsModel(
       notes: 'notes',
       amount: 50,
       dateTime: DateTime(2025),
+      transactionCategoryLabel: '',
+      transactionCategoryIcon: '',
+      transactionSourceLabel: '',
+      transactionSourceIcon: '',
     );
 
-    when(() => mockIncomeDataSource.addIncome(income)).thenAnswer((_) async {});
+    when(
+      () => mockIncomeDataSource.addTransactions(any(), income),
+    ).thenAnswer((_) async {});
 
-    repository.addIncome(income);
+    repository.addTransaction(any(), income);
 
-    verify(() => mockIncomeDataSource.addIncome(income)).called(1);
+    verify(() => mockIncomeDataSource.addTransactions(any(), income)).called(1);
     verifyNoMoreInteractions(mockIncomeDataSource);
   });
 
-  test('Should throw exception when addIncome fails', () async {
-    IncomeDetailsModel income = IncomeDetailsModel(
-      incomeTypeLabel: 'Food',
-      incomeTypeIcon: 'any',
-      incomeSourceLabel: 'incomeSourceLabel',
-      incomeSourceIcon: 'incomeSourceIcon',
+  test('Should throw exception when addTransaction fails', () async {
+    TransactionDetailsModel income = TransactionDetailsModel(
+      transactionCategoryLabel: 'Food',
+      transactionCategoryIcon: 'any',
+      transactionSourceLabel: 'incomeSourceLabel',
+      transactionSourceIcon: 'incomeSourceIcon',
       notes: 'notes',
       amount: 50,
       dateTime: DateTime(2025),
     );
 
     when(
-      () => mockIncomeDataSource.addIncome(income),
+      () => mockIncomeDataSource.addTransactions(any(), income),
     ).thenThrow(Exception('Income Addition Failed'));
 
-    expectLater(
-      repository.addIncome(income),
-      throwsA(isA<Exception>()),
-    );
+    expectLater(repository.addTransaction(any(), income), throwsA(isA<Exception>()));
   });
 }

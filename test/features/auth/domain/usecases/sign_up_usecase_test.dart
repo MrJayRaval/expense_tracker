@@ -1,4 +1,5 @@
-import '../../../../../linux/lib/features/auth/domain/usecases/sign_up_usecase.dart';
+import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

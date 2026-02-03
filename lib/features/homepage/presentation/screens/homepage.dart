@@ -1,9 +1,12 @@
+import 'package:expense_tracker/features/homepage/features/dashboard/presenation/Screens/dashboard_page.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/presentaion/screens/add_transaction_page.dart';
+
 import '../../../../config/theme_helper.dart';
-import '../../../history/presenation/Screens/history_page.dart';
-import '../../../category/presenation/Screens/category_page.dart';
+import '../../features/history/presenation/Screens/history_page.dart';
+import '../../features/category/presenation/Screens/category_page.dart';
 import '../providers/dashboard_provider.dart';
 import 'test.dart';
-import '../../../income/presentaion/screens/income_page.dart';
+import '../../features/transaction/presentaion/screens/income_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -21,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = const [
-    TestingPage(text: 'Dashboard'),
+    DashboardPage(),
     HistoryPage(),
     TestingPage(text: 'Analysis'),
     IncomePage(),
@@ -33,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardProvider>().fetchUserDetails();
+      context.read<HomePageProvider>().fetchUserDetails();
     });
   }
 
@@ -75,10 +78,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(width: 10),
           Text(
             titles[_selectedIndex],
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge!
-                .copyWith(color: ThemeHelper.onSurface),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge!.copyWith(color: ThemeHelper.onSurface),
           ),
         ],
       ),
@@ -88,8 +90,9 @@ class _HomePageState extends State<HomePage> {
   // ---------------- FAB ----------------
 
   Widget? _buildFAB() {
+    if (_selectedIndex == 1) return HistoryFAB();
     if (_selectedIndex == 4) return CategoryFAB();
-    if (_selectedIndex == 3) return IncomeFAB();
+    if (_selectedIndex == 3) return AddTransactionFAB();
     return null;
   }
 
@@ -112,7 +115,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildDrawerHeader() {
-    return Consumer<DashboardProvider>(
+    return Consumer<HomePageProvider>(
       builder: (_, dashboard, _) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -121,19 +124,14 @@ class _HomePageState extends State<HomePage> {
               CircleAvatar(
                 radius: 45,
                 backgroundColor: ThemeHelper.onSurface,
-                child: Icon(
-                  Icons.person,
-                  size: 45,
-                  color: ThemeHelper.surface,
-                ),
+                child: Icon(Icons.person, size: 45, color: ThemeHelper.surface),
               ),
               const SizedBox(height: 12),
               Text(
                 dashboard.user?['name'] ?? 'Loading...',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(color: ThemeHelper.onSurface),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(color: ThemeHelper.onSurface),
               ),
               const SizedBox(height: 4),
               Text(
@@ -165,14 +163,15 @@ class _HomePageState extends State<HomePage> {
     final bool selected = _selectedIndex == index;
 
     return ListTile(
-      leading: Icon(icon,
-          color: selected ? ThemeHelper.primary : ThemeHelper.onSurface),
+      leading: Icon(
+        icon,
+        color: selected ? ThemeHelper.primary : ThemeHelper.onSurface,
+      ),
       title: Text(
         label,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color:
-                  selected ? ThemeHelper.primary : ThemeHelper.onSurface,
-            ),
+          color: selected ? ThemeHelper.primary : ThemeHelper.onSurface,
+        ),
       ),
       selected: selected,
       onTap: () {
@@ -192,10 +191,9 @@ class _HomePageState extends State<HomePage> {
         ),
         title: Text(
           'Logout',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium!
-              .copyWith(color: ThemeHelper.error),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium!.copyWith(color: ThemeHelper.error),
         ),
         onTap: () async {
           await Hive.deleteFromDisk();

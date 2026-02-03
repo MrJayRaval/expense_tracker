@@ -1,5 +1,5 @@
 import '../../config/theme_helper.dart';
-import 'models/calc_input_model.dart';
+import '../models/calc_input_model.dart';
 import 'textbox.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +18,8 @@ class OnScreenKeyBoard extends StatefulWidget {
     this.isEditMode,
     this.calculationDisplay,
     this.selectedDate,
-    this.selectedTime, this.notes,
+    this.selectedTime,
+    this.notes,
   });
 
   @override
@@ -176,6 +177,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
               Expanded(
                 child: Container(
                   width: 48,
+                  height: 60,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     border: Border.all(color: ThemeHelper.outline),
@@ -190,6 +192,34 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
                 ),
               ),
               SizedBox(width: 10),
+
+              Container(
+                width: 85,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: ThemeHelper.errorContainer,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      _onCalculatorInput('DEL');
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.backspace_outlined,
+                          color: ThemeHelper.error,
+                        ),
+                        // SizedBox(width: 10),
+                        // Text('Delete'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
 
@@ -200,6 +230,9 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
             crossAxisCount: 4,
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
+            // Increase childAspectRatio to make each cell wider relative to height,
+            // which decreases the button height. Adjust this value to taste.
+            childAspectRatio: 1.25,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
             children: [
@@ -223,70 +256,6 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
           ),
 
           SizedBox(height: 16),
-
-          // Clear Button
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  // width: 100,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: ThemeHelper.primary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _onCalculatorInput('C'),
-                      child: Center(
-                        child: Text(
-                          'Clear All',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 10),
-
-              Expanded(
-                child: Container(
-                  // width: double.minPositive,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: ThemeHelper.errorContainer,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        _onCalculatorInput('DEL');
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.backspace_outlined,
-                            color: ThemeHelper.error,
-                          ),
-                          SizedBox(width: 10),
-                          Text('Delete'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 20),
 
           // Date and Time Selection
           Row(
@@ -376,7 +345,7 @@ class _OnScreenKeyBoardState extends State<OnScreenKeyBoard> {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 25,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: isOperator
                     ? ThemeHelper.onPrimary

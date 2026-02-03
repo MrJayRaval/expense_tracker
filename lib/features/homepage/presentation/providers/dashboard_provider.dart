@@ -2,13 +2,13 @@ import '../../domain/usecases/fetch_user_details_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class DashboardProvider with ChangeNotifier {
+class HomePageProvider with ChangeNotifier {
   final FetchUserDetailsUsecase fetchUserDetailsUsecase;
 
   bool isLoading = false;
   String? error;
 
-  DashboardProvider({required this.fetchUserDetailsUsecase});
+  HomePageProvider({required this.fetchUserDetailsUsecase});
 
   Map<String, dynamic>? user;
 
@@ -19,7 +19,7 @@ class DashboardProvider with ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
     try {
-      user =await  fetchUserDetailsUsecase(uid);
+      user = await fetchUserDetailsUsecase(uid);
     } catch (e) {
       error = e.toString();
     } finally {

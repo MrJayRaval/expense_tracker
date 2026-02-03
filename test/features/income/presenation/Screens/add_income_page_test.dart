@@ -1,53 +1,53 @@
-import '../../../../../linux/lib/config/theme_helper.dart';
-import '../../../../../linux/lib/features/income/domain/entity/income_details_model.dart';
-import '../../../../../linux/lib/features/income/presentaion/provider/income_provider.dart';
-import '../../../../../linux/lib/features/income/presentaion/screens/add_income_page.dart';
+import 'package:expense_tracker/config/theme_helper.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/presentaion/provider/transaction_provider.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/presentaion/screens/add_transaction_page.dart';
+import 'package:expense_tracker/ui/models/trasaction_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-class MockIncomeProvider extends Mock implements IncomeProvider {}
+class MockTransactionProvider extends Mock implements TransactionProvider {}
 
-Widget createWidgetUnderTest(IncomeProvider provider) {
+Widget createWidgetUnderTest(TransactionProvider provider) {
   return MaterialApp(
-    home: ChangeNotifierProvider<IncomeProvider>.value(
-    builder: (context, child) {
-      ThemeHelper.init(context);
-      return child!;
-    },
+    home: ChangeNotifierProvider<TransactionProvider>.value(
+      builder: (context, child) {
+        ThemeHelper.init(context);
+        return child!;
+      },
       value: provider,
-      child: AddIncomePage(),
+      child: AddTransactionPage(transactionType: any()),
     ),
   );
 }
 
 void main() {
-  late MockIncomeProvider mockIncomeProvider;
+  late MockTransactionProvider mockTransactionProvider;
 
-  IncomeDetailsModel income = IncomeDetailsModel(
-      incomeTypeLabel: 'Food',
-      incomeTypeIcon: 'any',
-      incomeSourceLabel: 'incomeSourceLabel',
-      incomeSourceIcon: 'incomeSourceIcon',
-      notes: 'notes',
-      amount: 50,
-      dateTime: DateTime(2025),
-    );
+  TransactionDetailsModel income = TransactionDetailsModel(
+    notes: 'notes',
+    amount: 50,
+    dateTime: DateTime(2025),
+    transactionCategoryLabel: '',
+    transactionCategoryIcon: '',
+    transactionSourceLabel: '',
+    transactionSourceIcon: '',
+  );
   setUp(() {
-    mockIncomeProvider = MockIncomeProvider();
+    mockTransactionProvider = MockTransactionProvider();
 
-    when(() => mockIncomeProvider.isLoading).thenReturn(false);
-    when(() => mockIncomeProvider.error).thenReturn(null);
+    when(() => mockTransactionProvider.isLoading).thenReturn(false);
+    when(() => mockTransactionProvider.error).thenReturn(null);
     when(
-      () => mockIncomeProvider.addIncome(income),
+      () => mockTransactionProvider.addTransaction(any(), income),
     ).thenAnswer((_) async => true);
   });
 
   testWidgets('Add Income Page renders all UI elements', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(createWidgetUnderTest(mockIncomeProvider));
+    await tester.pumpWidget(createWidgetUnderTest(mockTransactionProvider));
 
     expect(find.text('Income Type'), findsOneWidget);
   });
