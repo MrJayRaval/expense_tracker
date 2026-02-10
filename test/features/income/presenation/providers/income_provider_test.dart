@@ -5,15 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAddIncomeUsecase extends Mock implements AddIncomeUsecase {}
+class MockAddTransactionUsecase extends Mock implements AddTransactionUsecase {}
 
 void main() {
-  late MockAddIncomeUsecase mockAddIncomeUsecase;
+  late MockAddTransactionUsecase mockAddTransactionUsecase;
   late TransactionProvider provider;
 
   setUp(() {
-    mockAddIncomeUsecase = MockAddIncomeUsecase();
-    provider = TransactionProvider(addIncomeUsecase: mockAddIncomeUsecase);
+    mockAddTransactionUsecase = MockAddTransactionUsecase();
+    provider = TransactionProvider(
+      addTransactionUsecase: mockAddTransactionUsecase,
+    );
   });
 
   TransactionDetailsModel transaction = TransactionDetailsModel(
@@ -27,7 +29,9 @@ void main() {
   );
 
   test("Should call addTransaction on TransactionProvider", () async {
-    when(() => mockAddIncomeUsecase(any(), transaction)).thenAnswer((_) async {});
+    when(
+      () => mockAddTransactionUsecase(any(), transaction),
+    ).thenAnswer((_) async {});
 
     final states = <bool>[];
     provider.addListener(() {
@@ -40,7 +44,7 @@ void main() {
     expect(states, [true, false]);
     expect(provider.error, null);
 
-    verify(() => mockAddIncomeUsecase(any(), transaction)).called(1);
-    verifyNoMoreInteractions(mockAddIncomeUsecase);
+    verify(() => mockAddTransactionUsecase(any(), transaction)).called(1);
+    verifyNoMoreInteractions(mockAddTransactionUsecase);
   });
 }

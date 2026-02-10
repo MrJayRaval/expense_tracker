@@ -61,6 +61,8 @@ Future<void> main() async {
   await Future.wait([
     Hive.openBox(TransactionType.expense.name),
     Hive.openBox(TransactionType.income.name),
+    Hive.openBox('analysisOf${TransactionType.expense.name}'),
+    Hive.openBox('analysisOf${TransactionType.income.name}'),
   ]);
 
   runApp(MyApp());
@@ -149,7 +151,13 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
 
-        ChangeNotifierProvider(create: (_) => DashboardProvider(getTransactionsUsecase: GetTransactionsUsecase(_historyRepositoryImpl))),
+        ChangeNotifierProvider(
+          create: (_) => DashboardProvider(
+            getTransactionsUsecase: GetTransactionsUsecase(
+              _historyRepositoryImpl,
+            ),
+          ),
+        ),
 
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(
@@ -164,7 +172,7 @@ class _MyAppState extends State<MyApp> {
 
         ChangeNotifierProvider(
           create: (_) => TransactionProvider(
-            addIncomeUsecase: AddIncomeUsecase(
+            addTransactionUsecase: AddTransactionUsecase(
               repository: _incomeRepositoryImpl,
             ),
           ),
@@ -208,7 +216,7 @@ class _MyAppState extends State<MyApp> {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, asyncSnapshot) {
             if (asyncSnapshot.hasData) {
-              return const HomePage();
+              return const      HomePage();
             }
             return const LoginPage();
           },

@@ -39,8 +39,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   late TransactionInput input;
 
   int? selectedTransactionIndex;
-  TransactionCategory? selectedTransactionCategory;
-  TransactionSource? selectedTransactionSource;
+  TransactionSource? selectedTransactionCategory;
+  TransactionCategory? selectedTransactionSource;
 
   late TransactionType transactionType;
 
@@ -58,11 +58,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         amount: i.amount,
         dateTime: i.dateTime,
       );
-      selectedTransactionCategory = TransactionCategory(
+      selectedTransactionCategory = TransactionSource(
         label: i.transactionCategoryLabel,
         icon: i.transactionCategoryIcon,
       );
-      selectedTransactionSource = TransactionSource(
+      selectedTransactionSource = TransactionCategory(
         label: i.transactionSourceLabel,
         icon: i.transactionSourceIcon,
       );
@@ -111,8 +111,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom:
-                                    (transactionType ==
-                                        TransactionType.expense)
+                                    (transactionType == TransactionType.expense)
                                     ? BorderSide(
                                         width: 3,
                                         color: ThemeHelper.primary,
@@ -151,8 +150,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom:
-                                    (transactionType ==
-                                        TransactionType.income)
+                                    (transactionType == TransactionType.income)
                                     ? BorderSide(
                                         width: 3,
                                         color: ThemeHelper.primary,
@@ -207,7 +205,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       onItemSelected: (value) {
                                         setState(() {
                                           selectedTransactionCategory =
-                                              TransactionCategory(
+                                              TransactionSource(
                                                 label: value['label'],
                                                 icon: value['icon'],
                                               );
@@ -255,7 +253,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       onItemSelected: (value) {
                                         setState(() {
                                           selectedTransactionSource =
-                                              TransactionSource(
+                                              TransactionCategory(
                                                 label: value['label'],
                                                 icon: value['icon'],
                                               );
@@ -316,12 +314,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
                           if ((selectedTransactionCategory?.label ?? '')
                               .isEmpty) {
-                            errors.add('Select ${transactionType.name.capitalize} Category');
+                            errors.add(
+                              'Select ${transactionType.name.capitalize} Category',
+                            );
                           }
 
                           if ((selectedTransactionSource?.label ?? '')
                               .isEmpty) {
-                            errors.add('Select ${transactionType.name.capitalize} Source');
+                            errors.add(
+                              'Select ${transactionType.name.capitalize} Source',
+                            );
                           }
 
                           if (errors.isNotEmpty) {
@@ -379,10 +381,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                               // Await add, then refresh history. Also optimistically add to history list.
                               context
                                   .read<TransactionProvider>()
-                                  .addTransaction(
-                                    transactionType,
-                                    transaction,
-                                  );
+                                  .addTransaction(transactionType, transaction);
                               context
                                   .read<HistoryProvider>()
                                   .addTransactionToHistory(transaction);
@@ -474,13 +473,14 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      backgroundColor: ThemeHelper.error,
+      backgroundColor: ThemeHelper.onSurface,
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                const AddTransactionPage(transactionType: TransactionType.expense),
+            builder: (context) => const AddTransactionPage(
+              transactionType: TransactionType.expense,
+            ),
           ),
         );
       },

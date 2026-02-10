@@ -10,11 +10,9 @@ var incomeSourceModel = [
   {"icon": "assets/Images/income/sale.svg", "label": "Sale"},
 ];
 
-
-
-class TransactionSource {
+class TransactionCategory {
   final String icon;
   final String label;
 
-  TransactionSource({required this.icon, required this.label});
+  TransactionCategory({required this.icon, required this.label});
 }

@@ -16,7 +16,7 @@ class HistoryDetailsPage extends StatelessWidget {
 
   const HistoryDetailsPage({
     super.key,
-    required this.deleteButtonFunction,
+     this.deleteButtonFunction,
     required this.title,
     required this.transaction,
     required this.context,

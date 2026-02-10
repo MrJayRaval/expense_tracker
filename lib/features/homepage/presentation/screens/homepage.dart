@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return AppBar(
-      backgroundColor: ThemeHelper.surface,
+      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
       title: Row(
         children: [
           Image.asset('assets/logo.png', height: 24),

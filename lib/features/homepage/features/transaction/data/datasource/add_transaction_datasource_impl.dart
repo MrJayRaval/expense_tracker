@@ -18,16 +18,21 @@ class TransactionDataSourceImpl implements TransactionDataSource {
   }
 
   @override
-  Future<void> addTransactions(TransactionType transactionType ,TransactionDetailsModel transaction) async {
-    final type = transactionType == TransactionType.income ? 'income' : 'expense';
+  Future<void> addTransactions(
+    TransactionType transactionType,
+    TransactionDetailsModel transaction,
+  ) async {
+    final type = transactionType == TransactionType.income
+        ? 'income'
+        : 'expense';
     await firestore
         .collection('users')
         .doc(await getUID())
         .collection(type)
         .add({
-          'TransactionCategory': transaction.transactionCategoryLabel,
+          'TransactionSource': transaction.transactionCategoryLabel,
           'TransactionCategoryIcon': transaction.transactionCategoryIcon,
-          'TransactionSource': transaction.transactionSourceLabel,
+          'TransactionCategory': transaction.transactionSourceLabel,
           'TransactionSourceIcon': transaction.transactionSourceIcon,
           'Notes': transaction.notes,
           'Amount': transaction.amount,

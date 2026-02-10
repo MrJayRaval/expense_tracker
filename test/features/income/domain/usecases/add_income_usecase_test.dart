@@ -8,11 +8,13 @@ class MockIncomeRepository extends Mock implements IncomeRepositoryImpl {}
 
 void main() {
   late MockIncomeRepository mockIncomeRepository;
-  late AddIncomeUsecase addIncomeUsecase;
+  late AddTransactionUsecase addTransactionUsecase;
 
   setUp(() {
     mockIncomeRepository = MockIncomeRepository();
-    addIncomeUsecase = AddIncomeUsecase(repository: mockIncomeRepository);
+    addTransactionUsecase = AddTransactionUsecase(
+      repository: mockIncomeRepository,
+    );
   });
 
   TransactionDetailsModel transaction = TransactionDetailsModel(
@@ -25,14 +27,16 @@ void main() {
     transactionSourceIcon: '',
   );
 
-  test("Should call addTransaction on AddIncomeUsecase", () async {
+  test("Should call addTransaction on AddTransactionUsecase", () async {
     when(
-      () => mockIncomeRepository.addTransaction(any(),transaction),
+      () => mockIncomeRepository.addTransaction(any(), transaction),
     ).thenAnswer((_) async {});
 
-    await addIncomeUsecase(any(),transaction);
+    await addTransactionUsecase(any(), transaction);
 
-    verify(() => mockIncomeRepository.addTransaction(any(),transaction)).called(1);
+    verify(
+      () => mockIncomeRepository.addTransaction(any(), transaction),
+    ).called(1);
     verifyNoMoreInteractions(mockIncomeRepository);
   });
 

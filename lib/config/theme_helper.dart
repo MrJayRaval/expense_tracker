@@ -59,6 +59,26 @@ class ThemeHelper {
   static TextStyle? get labelLarge => _tt.labelLarge;
   static TextStyle? get labelMedium => _tt.labelMedium;
   static TextStyle? get labelSmall => _tt.labelSmall;
-}
 
-class TH extends ThemeHelper {}
+  static List<Color> chartColors(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return isDark
+        ? [
+            Colors.tealAccent,
+            Colors.orangeAccent,
+            Colors.pinkAccent,
+            Colors.blueAccent,
+            Colors.purpleAccent,
+            Colors.greenAccent,
+          ]
+        : [
+            Colors.teal,
+            Colors.orange,
+            Colors.pink,
+            Colors.blue,
+            Colors.purple,
+            Colors.green,
+          ];
+  }
+}

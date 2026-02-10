@@ -1,13 +1,13 @@
+import 'package:expense_tracker/features/homepage/features/transaction/domain/usecases/add_income_usecase.dart';
 import 'package:expense_tracker/ui/models/enum.dart';
 
 import '../../../../../../ui/models/trasaction_details_model.dart';
-import '../../domain/usecases/add_income_usecase.dart';
 import 'package:flutter/material.dart';
 
 class TransactionProvider extends ChangeNotifier {
-  final AddIncomeUsecase addIncomeUsecase;
+  final AddTransactionUsecase addTransactionUsecase;
 
-  TransactionProvider({required this.addIncomeUsecase});
+  TransactionProvider({required this.addTransactionUsecase});
 
   bool isLoading = false;
   String? error;
@@ -26,7 +26,7 @@ class TransactionProvider extends ChangeNotifier {
     bool success = false;
 
     try {
-      await addIncomeUsecase(transactionType, income);
+      await addTransactionUsecase(transactionType, income);
       success = true;
       error = null;
     } catch (e) {

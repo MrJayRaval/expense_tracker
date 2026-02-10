@@ -49,6 +49,7 @@ class _CategoryPageState extends State<CategoryPage>
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         children: [
+          SizedBox(height: 10,),
           Expanded(
             child: ListView.builder(
               itemCount: category.categories.length,
@@ -63,7 +64,7 @@ class _CategoryPageState extends State<CategoryPage>
                 final outlineColor = ThemeHelper.outline;
                 final onSurfaceColor = ThemeHelper.onSurface;
                 final errorColor = ThemeHelper.error;
-
+            
                 return Padding(
                   key: ValueKey(c.label),
                   padding: const EdgeInsets.only(bottom: 8.0),
@@ -112,7 +113,6 @@ class _CategoryPageState extends State<CategoryPage>
               },
             ),
           ),
-          const SizedBox(height: 50),
         ],
       ),
     );

@@ -6,9 +6,9 @@ var transactionCategoryModel = [
   {"icon": "assets/Images/income/card.svg", "label": "Card"},
 ];
 
-class TransactionCategory {
+class TransactionSource {
   final String label;
   final String icon;
 
-  TransactionCategory({required this.label, required this.icon});
+  TransactionSource({required this.label, required this.icon});
 }

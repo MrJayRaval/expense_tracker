@@ -15,7 +15,7 @@ class CustTextField extends StatelessWidget {
   final dynamic maxLines;
   final dynamic minLines;
   final TextStyle textStyle;
-  final Color borderColor;
+  final Color? borderColor;
   final ValueChanged<String>? onChanged;
 
   const CustTextField({
@@ -24,14 +24,14 @@ class CustTextField extends StatelessWidget {
     required this.label,
     required this.controller,
     this.validator,
-    this.borderWidth = 3.0,
+    this.borderWidth = 3,
     this.expands = false,
     this.autoFocus = false,
     this.maxLines = 1,
     this.minLines = 1,
     this.textInputType = TextInputType.text,
     this.textStyle = const TextStyle(),
-    this.borderColor = const Color.fromARGB(255, 0, 0, 0), 
+    this.borderColor, 
     this.onChanged,
   });
 
@@ -61,7 +61,7 @@ class CustTextField extends StatelessWidget {
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: borderWidth, color: borderColor),
+            borderSide: BorderSide(width: 1, color: borderColor == null ? ThemeHelper.primary : borderColor!),
           ),
 
           errorStyle: TextStyle(color: ThemeHelper.error),
@@ -152,7 +152,7 @@ class _CustPasswordFieldState extends State<CustPasswordField> {
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(width: 2.0, color: ThemeHelper.primary),
+            borderSide: BorderSide(width: 1.0, color: ThemeHelper.primary),
           ),
 
           errorStyle: TextStyle(color: ThemeHelper.error),

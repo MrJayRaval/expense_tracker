@@ -19,7 +19,9 @@ class HistoryRepositoryImpl implements HistoryRepository {
   /// The data is cached in the local storage so that it can be accessed
   /// even when the app is offline.
   ///
-  Future<List<TransactionDetailsModel>> getTransaction(TransactionType transactionType, ) async {
+  Future<List<TransactionDetailsModel>> getTransaction(
+    TransactionType transactionType,
+  ) async {
     // Try to fetch remote data first. If successful, cache and return it so
     // the UI gets the up-to-date remote data on first load.
     try {
@@ -28,19 +30,22 @@ class HistoryRepositoryImpl implements HistoryRepository {
         await local.cacheTransactionHistory(transactionType, remoteData);
         return remoteData;
       } else {
-        await local.deleteAllTransaction(transactionType, );
+        await local.deleteAllTransaction(transactionType);
       }
     } catch (_) {
       // ignore and fall back to local
     }
 
     // If remote fetch failed or returned empty, fall back to local cache.
-    final localData = await local.getTransaction(transactionType, );
+    final localData = await local.getTransaction(transactionType);
     return localData;
   }
 
   @override
-  Future<void> deleteParticularTransaction(TransactionType transactionType, String id) async {
+  Future<void> deleteParticularTransaction(
+    TransactionType transactionType,
+    String id,
+  ) async {
     await local.deleteParticularTransaction(transactionType, id);
 
     try {
@@ -51,7 +56,10 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Future<void> updateTransaction(TransactionType transactionType, TransactionDetailsModel income) async {
+  Future<void> updateTransaction(
+    TransactionType transactionType,
+    TransactionDetailsModel income,
+  ) async {
     await local.updateTransaction(transactionType, income);
     try {
       remote.updateTransaction(transactionType, income);

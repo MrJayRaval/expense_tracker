@@ -12,12 +12,14 @@ class HistoryRemoteDatasourceImpl implements HistoryRemoteDataSource {
   HistoryRemoteDatasourceImpl({required this.firestore, required this.auth});
 
   @override
-  Future<List<TransactionDetailsModel>> fetchTransactionHistory(TransactionType transactionType, ) async {
+  Future<List<TransactionDetailsModel>> fetchTransactionHistory(
+    TransactionType transactionType,
+  ) async {
     String uid = auth.currentUser!.uid;
     final snapshot = await firestore
         .collection('users')
         .doc(uid)
-        .collection(transactionType.name, )
+        .collection(transactionType.name)
         .orderBy('TimeStamp', descending: true)
         .get();
 
@@ -27,18 +29,24 @@ class HistoryRemoteDatasourceImpl implements HistoryRemoteDataSource {
   }
 
   @override
-  Future<void> deleteParticularTransaction(TransactionType transactionType, String id) async {
+  Future<void> deleteParticularTransaction(
+    TransactionType transactionType,
+    String id,
+  ) async {
     String uid = auth.currentUser!.uid;
     await firestore
         .collection('users')
         .doc(uid)
-        .collection(transactionType.name, )
+        .collection(transactionType.name)
         .doc(id)
         .delete();
   }
 
   @override
-  Future<void> updateTransaction(TransactionType transactionType, TransactionDetailsModel transaction) async {
+  Future<void> updateTransaction(
+    TransactionType transactionType,
+    TransactionDetailsModel transaction,
+  ) async {
     String uid = auth.currentUser!.uid;
     try {
       await firestore
@@ -49,7 +57,7 @@ class HistoryRemoteDatasourceImpl implements HistoryRemoteDataSource {
           .update({
             'TransactionType': transaction.transactionCategoryLabel,
             'TransactionTypeIcon': transaction.transactionCategoryIcon,
-            'TransactionSource': transaction.transactionSourceLabel,
+            'TransactionCategory': transaction.transactionSourceLabel,
             'TransactionSourceIcon': transaction.transactionSourceIcon,
             'Notes': transaction.notes,
             'Amount': transaction.amount,

@@ -11,7 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  final TransactionType? transactionType;
+  const HistoryPage({super.key, this.transactionType});
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
@@ -23,7 +24,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-    transactionType = TransactionType.income;
+    transactionType = widget.transactionType ?? TransactionType.expense;
 
     // Fetch transactions once the widget is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -141,6 +142,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       }
 
                       return ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         itemCount: grouped.length,
                         itemBuilder: (BuildContext context, int index) {
                           final date = sortedDates[index];
@@ -225,9 +227,30 @@ class _HistoryFABState extends State<HistoryFAB> {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       backgroundColor: ThemeHelper.onSurface,
-      onPressed: () async {
-        debugPrint("${await Hive.box('expense').clear()} entry removed)");
-        debugPrint("${await Hive.box('income').clear()} entry removed)");
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: ThemeHelper.outline),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
+            title: Text('Remove All History'),
+            actions: [
+              TextButton(onPressed: () {
+                Navigator.pop(context);
+              }, child: Text('Cancel')),
+              TextButton(onPressed: () async {
+                debugPrint("${await Hive.box('expense').clear()} entry removed)");
+                debugPrint("${await Hive.box('income').clear()} entry removed)");
+                Navigator.pop(context);
+              }, child: Text('Confirm')),
+            ],
+          ),
+        );
+
+        
       },
       icon: Icon(Icons.delete, color: ThemeHelper.error),
       label: Text(
