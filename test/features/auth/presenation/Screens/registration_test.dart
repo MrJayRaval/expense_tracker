@@ -1,16 +1,24 @@
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/features/auth/presentation/screen/registration_page.dart';
+import 'package:expense_tracker/features/auth/features/create_profile/presentation/provider/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-class MockAuthProvider extends Mock implements AuthProviderr {}
+class MockAuthProvider extends Mock implements AuthProvider {}
+class MockProfileProvider extends Mock implements ProfileProvider {}
 
-Widget createWidgetUnderTest(AuthProviderr provider) {
+Widget createWidgetUnderTest(
+  AuthProvider provider,
+  ProfileProvider profileProvider,
+) {
   return MaterialApp(
-    home: ChangeNotifierProvider<AuthProviderr>.value(
-      value: provider,
+    home: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>.value(value: provider),
+        Provider<ProfileProvider>.value(value: profileProvider),
+      ],
       child: RegistrationPage(),
     ),
   );
@@ -18,19 +26,24 @@ Widget createWidgetUnderTest(AuthProviderr provider) {
 
 void main() {
   late MockAuthProvider mockAuth;
+  late MockProfileProvider mockProfile;
 
   setUp(() {
     mockAuth = MockAuthProvider();
+    mockProfile = MockProfileProvider();
 
     when(() => mockAuth.error).thenReturn(null);
     when(() => mockAuth.register(any(), any())).thenAnswer((_) async => true);
     when(() => mockAuth.isLoading).thenReturn(false);
+    when(() => mockProfile.isLoading).thenReturn(false);
+    when(() => mockProfile.error).thenReturn(null);
+    when(() => mockProfile.createProfile(any())).thenAnswer((_) async => true);
   });
 
   testWidgets('Registration page renders all required widgets', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(createWidgetUnderTest(mockAuth));
+    await tester.pumpWidget(createWidgetUnderTest(mockAuth, mockProfile));
 
     expect(find.text('Nice to meet you!'), findsOneWidget);
     expect(find.byType(TextFormField), findsAtLeastNWidgets(4));
@@ -40,7 +53,7 @@ void main() {
   testWidgets('Shows validation error in Registration Page', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(createWidgetUnderTest(mockAuth));
+    await tester.pumpWidget(createWidgetUnderTest(mockAuth, mockProfile));
 
     await tester.tap(find.text('Sign Up'));
     await tester.pumpAndSettle();
@@ -62,5 +75,25 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(3), '123456');
     await tester.tap(find.text('Sign Up'));
     await tester.pump();
+  });
+
+  testWidgets('Shows dialog when registration fails', (
+    WidgetTester tester,
+  ) async {
+    when(() => mockAuth.register(any(), any())).thenAnswer((_) async => false);
+    when(() => mockAuth.error).thenReturn('Unable to sign up.');
+
+    await tester.pumpWidget(createWidgetUnderTest(mockAuth, mockProfile));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'ABC');
+    await tester.enterText(find.byType(TextFormField).at(1), 'abc@gmail.com');
+    await tester.enterText(find.byType(TextFormField).at(2), '123456');
+    await tester.enterText(find.byType(TextFormField).at(3), '123456');
+
+    await tester.tap(find.text('Sign Up'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sign Up Failed'), findsOneWidget);
+    expect(find.text('Unable to sign up.'), findsOneWidget);
   });
 }

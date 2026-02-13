@@ -11,18 +11,22 @@ class ProfileProvider with ChangeNotifier {
 
   ProfileProvider(this.remote);
 
-  Future<void> createProfile(UserProfileModel profileData) async {
+  Future<bool> createProfile(UserProfileModel profileData) async {
     isLoading = true;
+    error = null;
     notifyListeners();
+    bool success = false;
 
     try {
       await remote.createProfile(profileData);
       profile = profileData;
+      success = true;
     } catch (e) {
       error = e.toString();
     }
 
     isLoading = false;
     notifyListeners();
+    return success;
   }
 }

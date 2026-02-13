@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/ui/models/enum.dart';
 import '../../domain/datasource/data_remote_source.dart';
@@ -25,7 +27,7 @@ class TransactionDataSourceImpl implements TransactionDataSource {
     final type = transactionType == TransactionType.income
         ? 'income'
         : 'expense';
-    await firestore
+    firestore
         .collection('users')
         .doc(await getUID())
         .collection(type)
@@ -37,6 +39,9 @@ class TransactionDataSourceImpl implements TransactionDataSource {
           'Notes': transaction.notes,
           'Amount': transaction.amount,
           'TimeStamp': transaction.dateTime,
+        })
+        .then((_) {
+          log('TRANSACTION ADDED TO FIREBASE DATABASE');
         });
   }
 }

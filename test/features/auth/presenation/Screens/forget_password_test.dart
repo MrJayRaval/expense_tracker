@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-class MockAuthProvider extends Mock implements AuthProviderr {}
+class MockAuthProvider extends Mock implements AuthProvider {}
 
 class MockResetPasswordUsecase extends Mock implements ResetPasswordUseCase {}
 
@@ -17,48 +17,46 @@ class MockSignInUsecase extends Mock implements SignInUseCase {}
 
 class MockSignUpUsecase extends Mock implements SignUpUseCase {}
 
-final authProvider = AuthProviderr(
-      signUp: MockSignUpUsecase(),
-      signIn: MockSignInUsecase(),
-      resetPassword: MockResetPasswordUsecase(),
-    );
+final authProvider = AuthProvider(
+  signUp: MockSignUpUsecase(),
+  signIn: MockSignInUsecase(),
+  resetPassword: MockResetPasswordUsecase(),
+);
 
-Widget createWidgetUnderTest(AuthProviderr provider) {
+Widget createWidgetUnderTest(AuthProvider provider) {
   return MaterialApp(
     builder: (context, child) {
       ThemeHelper.init(context);
       return child!;
     },
-    home: ChangeNotifierProvider<AuthProviderr>.value(
+    home: ChangeNotifierProvider<AuthProvider>.value(
       value: provider,
       child: const ForgotPassword(),
     ),
   );
 }
 
-
 void main() {
   late MockResetPasswordUsecase mockResetPassword;
-late MockSignInUsecase mockSignIn;
-late MockSignUpUsecase mockSignUp;
-late AuthProviderr authProvider;
-
+  late MockSignInUsecase mockSignIn;
+  late MockSignUpUsecase mockSignUp;
+  late AuthProvider authProvider;
 
   setUp(() {
-  mockResetPassword = MockResetPasswordUsecase();
-  mockSignIn = MockSignInUsecase();
-  mockSignUp = MockSignUpUsecase();
+    mockResetPassword = MockResetPasswordUsecase();
+    mockSignIn = MockSignInUsecase();
+    mockSignUp = MockSignUpUsecase();
 
-  when(() => mockResetPassword(any()))
-      .thenAnswer((_) async {}); // RETURNS Future<void>
+    when(
+      () => mockResetPassword(any()),
+    ).thenAnswer((_) async {}); // RETURNS Future<void>
 
-  authProvider = AuthProviderr(
-    signUp: mockSignUp,
-    signIn: mockSignIn,
-    resetPassword: mockResetPassword,
-  );
-});
-
+    authProvider = AuthProvider(
+      signUp: mockSignUp,
+      signIn: mockSignIn,
+      resetPassword: mockResetPassword,
+    );
+  });
 
   testWidgets('Forget Password page shold render all required widgets', (
     WidgetTester tester,

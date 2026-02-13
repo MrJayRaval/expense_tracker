@@ -19,14 +19,14 @@ class TransactionProvider extends ChangeNotifier {
 
   Future<bool> addTransaction(
     TransactionType transactionType,
-    TransactionDetailsModel income,
+    TransactionDetailsModel transaction,
   ) async {
     isLoading = true;
     notifyListeners();
     bool success = false;
 
     try {
-      await addTransactionUsecase(transactionType, income);
+      addTransactionUsecase(transactionType, transaction);
       success = true;
       error = null;
     } catch (e) {

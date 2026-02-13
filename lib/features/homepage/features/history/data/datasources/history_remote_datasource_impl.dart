@@ -16,7 +16,8 @@ class HistoryRemoteDatasourceImpl implements HistoryRemoteDataSource {
     TransactionType transactionType,
   ) async {
     String uid = auth.currentUser!.uid;
-    final snapshot = await firestore
+    try{
+      final snapshot = await firestore
         .collection('users')
         .doc(uid)
         .collection(transactionType.name)
@@ -26,6 +27,10 @@ class HistoryRemoteDatasourceImpl implements HistoryRemoteDataSource {
     return snapshot.docs
         .map((e) => TransactionDetailsModel.fromJson(e.data(), e.id))
         .toList();
+    }catch(E){
+      throw Exception('NO INTERNET CONNECTION');
+    }
+    
   }
 
   @override

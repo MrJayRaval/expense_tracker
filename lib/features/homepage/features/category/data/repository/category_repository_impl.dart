@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import '../datasources/category_local_datasource.dart';
 import '../datasources/category_remote_datasource.dart';
@@ -18,8 +19,20 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
     // Fetch From firebase if cache is empty
     if (customLabel.isEmpty) {
-      customLabel = await remote.fetchCategories();
-      await local.cacheCategories(customLabel);
+      try {
+        customLabel = await remote.fetchCategories().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => [],
+        );
+        if (customLabel.isNotEmpty) {
+          await local.cacheCategories(customLabel);
+        }
+      } catch (e) {
+        // If offline or error, proceed with empty custom categories
+        // Default categories will still be loaded
+        debugPrint('Failed to fetch remote categories: $e');
+        customLabel = [];
+      }
     }
 
     // convert cutom label to model
@@ -51,7 +64,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
     // Fire-and-forget remote sync for successful UI Update
     remote.deleteCategory(label);
   }
-  
+
   @override
   Future<bool> isCategoryDuplicated(String label) {
     return remote.isCategoryDuplicated(label);

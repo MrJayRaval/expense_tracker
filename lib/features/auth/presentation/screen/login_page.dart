@@ -2,8 +2,7 @@ import '../../../../config/theme_helper.dart';
 import '../provider/auth_provider.dart';
 import '../../../../ui/components/button.dart';
 import '../../../../ui/components/textbox.dart';
-import 'forget_password.dart';
-import 'registration_page.dart';
+import '../../../../routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +19,34 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Sign In Failed'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProviderr>();
+    final auth = context.watch<AuthProvider>();
     return Scaffold(
       backgroundColor: ThemeHelper.surface,
       body: Center(
@@ -92,11 +117,9 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => ForgotPassword(),
-                              ),
+                              AppRoutes.forgotPassword,
                             );
                           },
                           child: Container(
@@ -124,16 +147,23 @@ class _LoginPageState extends State<LoginPage> {
 
                     if (auth.isLoading) const CircularProgressIndicator(),
 
-                    if (auth.error != null) SnackBar(content: Text(auth.error!)),
-
                     CustPrimaryButton(
                       label: 'Sign In',
-                      function: () {
+                      function: () async {
+                        if (auth.isLoading) return;
                         if (_formKey.currentState!.validate()) {
-                          context.read<AuthProviderr>().logIn(
+                          final success = await context
+                              .read<AuthProvider>()
+                              .logIn(
                             _email.text.trim(),
                             _password.text.trim(),
                           );
+                          if (!success) {
+                            await _showErrorDialog(
+                              context,
+                              auth.error ?? 'Unable to sign in.',
+                            );
+                          }
                         }
                       },
                     ),
@@ -146,11 +176,9 @@ class _LoginPageState extends State<LoginPage> {
                         Text('Don\'t have any Account? '),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => RegistrationPage(),
-                              ),
+                              AppRoutes.register,
                             );
                           },
                           child: Container(

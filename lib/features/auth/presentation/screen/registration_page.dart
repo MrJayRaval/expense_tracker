@@ -1,12 +1,11 @@
 import '../../../../config/theme_helper.dart';
-import 'login_page.dart';
 import '../provider/auth_provider.dart';
-import '../../../homepage/presentation/screens/homepage.dart';
 import '../../features/create_profile/data/models/user_profile_model.dart';
 import '../../features/create_profile/presentation/provider/profile_provider.dart';
 import '../../../../ui/components/button.dart';
 import '../../../../ui/components/textbox.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../routes/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +23,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _confirmPassword = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Sign Up Failed'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _userName.dispose();
@@ -35,7 +53,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProviderr>();
+    final auth = context.watch<AuthProvider>();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -53,10 +71,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                        return;
+                      }
+                      Navigator.pushReplacementNamed(context, AppRoutes.login);
                     },
                     icon: Icon(Icons.arrow_back_ios),
                   ),
@@ -153,21 +172,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     CustPrimaryButton(
                       label: 'Sign Up',
                       function: () async {
+                        if (auth.isLoading) return;
                         if (_formKey.currentState!.validate()) {
                           // call register and wait for the result
                           final success = await context
-                              .read<AuthProviderr>()
+                              .read<AuthProvider>()
                               .register(
                                 _email.text.trim(),
                                 _password.text.trim(),
                               );
                           if (success) {
                             // get the newly created user
-                            final auth = context.read<FirebaseAuth>();
-                            final user = auth.currentUser;
+                            final user = FirebaseAuth.instance.currentUser;
+
                             if (user != null) {
                               // create profile in Firestore
-                              await context
+                              final profileSuccess = await context
                                   .read<ProfileProvider>()
                                   .createProfile(
                                     UserProfileModel(
@@ -176,23 +196,40 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       email: user.email ?? _email.text.trim(),
                                     ),
                                   );
-
-                              // navigate to dashboard and remove previous routes
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(builder: (_) => HomePage()),
-                                (route) => false,
-                              );
+                              if (!profileSuccess) {
+                                await _showErrorDialog(
+                                  context,
+                                  context.read<ProfileProvider>().error ??
+                                      'Failed to create user profile.',
+                                );
+                                await FirebaseAuth.instance.signOut();
+                                if (mounted) {
+                                  Navigator.popUntil(
+                                    context,
+                                    (route) => route.isFirst,
+                                  );
+                                }
+                              } else {
+                                if (mounted) {
+                                  Navigator.popUntil(
+                                    context,
+                                    (route) => route.isFirst,
+                                  );
+                                }
+                              }
                             } else {
                               // if user is null something went wrong; show error
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to get created user.'),
-                                ),
+                              await _showErrorDialog(
+                                context,
+                                'Failed to get created user.',
                               );
                             }
                           } else {
                             // registration failed; error is shown via provider
+                            await _showErrorDialog(
+                              context,
+                              auth.error ?? 'Unable to sign up.',
+                            );
                           }
                         }
                       },

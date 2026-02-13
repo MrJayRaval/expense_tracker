@@ -4,7 +4,8 @@ import 'package:expense_tracker/features/homepage/features/transaction/presentai
 import '../../../../config/theme_helper.dart';
 import '../../features/history/presenation/Screens/history_page.dart';
 import '../../features/category/presenation/Screens/category_page.dart';
-import '../providers/dashboard_provider.dart';
+import '../../features/history/presenation/providers/history_provider.dart';
+import '../providers/homepage_provider.dart';
 import 'test.dart';
 import '../../features/transaction/presentaion/screens/income_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +27,6 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = const [
     DashboardPage(),
     HistoryPage(),
-    TestingPage(text: 'Analysis'),
     IncomePage(),
     CategoryPage(),
     TestingPage(text: 'Setting'),
@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomePageProvider>().fetchUserDetails();
+      context.read<HistoryProvider>().loadTransaction();
     });
   }
 
@@ -61,14 +62,7 @@ class _HomePageState extends State<HomePage> {
   // ---------------- APP BAR ----------------
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    const titles = [
-      'FinWise',
-      'History',
-      'Summary',
-      'Income',
-      'Categories',
-      'Settings',
-    ];
+    const titles = ['FinWise', 'History', 'Income', 'Categories', 'Settings'];
 
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
@@ -90,9 +84,8 @@ class _HomePageState extends State<HomePage> {
   // ---------------- FAB ----------------
 
   Widget? _buildFAB() {
-    if (_selectedIndex == 1) return HistoryFAB();
-    if (_selectedIndex == 4) return CategoryFAB();
-    if (_selectedIndex == 3) return AddTransactionFAB();
+    if (_selectedIndex == 3) return CategoryFAB();
+    if (_selectedIndex == 2) return AddTransactionFAB();
     return null;
   }
 
@@ -151,10 +144,9 @@ class _HomePageState extends State<HomePage> {
       children: [
         _drawerTile(Icons.home, 'Dashboard', 0),
         _drawerTile(Icons.receipt_long, 'History', 1),
-        _drawerTile(Icons.bar_chart, 'Analysis', 2),
-        _drawerTile(Icons.trending_up, 'Income', 3),
-        _drawerTile(Icons.category, 'Categories', 4),
-        _drawerTile(Icons.settings, 'Settings', 5),
+        _drawerTile(Icons.trending_up, 'Income', 2),
+        _drawerTile(Icons.category, 'Categories', 3),
+        _drawerTile(Icons.settings, 'Settings', 4),
       ],
     );
   }

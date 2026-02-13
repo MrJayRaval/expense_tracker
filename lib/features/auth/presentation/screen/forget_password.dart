@@ -2,7 +2,7 @@ import '../../../../config/theme_helper.dart';
 import '../provider/auth_provider.dart';
 import '../../../../ui/components/button.dart';
 import '../../../../ui/components/textbox.dart';
-import 'login_page.dart';
+import '../../../../routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,9 +16,35 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showDialog(BuildContext context, String title, String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _ = context.watch<AuthProviderr>();
+    final auth = context.watch<AuthProvider>();
 
     return Scaffold(
       body: SafeArea(
@@ -78,11 +104,27 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       children: [
                         CustPrimaryButton(
                           label: 'Send',
-                          function: () {
+                          function: () async {
+                            if (auth.isLoading) return;
                             if (_formKey.currentState!.validate()) {
-                              context.read<AuthProviderr>().resetPassword(
-                                _email.text.trim(),
-                              );
+                              final success = await context
+                                  .read<AuthProvider>()
+                                  .resetPasswordLink(
+                                    _email.text.trim(),
+                                  );
+                              if (success) {
+                                await _showDialog(
+                                  context,
+                                  'Reset Link Sent',
+                                  'Check your email for the password reset link.',
+                                );
+                              } else {
+                                await _showDialog(
+                                  context,
+                                  'Reset Failed',
+                                  auth.error ?? 'Unable to send reset link.',
+                                );
+                              }
                             }
                           },
                         ),
@@ -92,11 +134,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         CustSecondaryButton(
                           label: 'Back to Log In',
                           function: () {
-                            Navigator.push(
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                              return;
+                            }
+                            Navigator.pushReplacementNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginPage(),
-                              ),
+                              AppRoutes.login,
                             );
                           },
                         ),

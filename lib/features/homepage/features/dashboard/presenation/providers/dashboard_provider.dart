@@ -1,93 +1,60 @@
-import 'dart:async';
-
 import 'package:expense_tracker/features/homepage/features/dashboard/domain/entities/analysis/transaction_distribution.dart';
-import 'package:expense_tracker/features/homepage/features/history/domain/usecases/get_transaction_usecase.dart';
 import 'package:expense_tracker/ui/models/enum.dart';
+import 'package:expense_tracker/ui/models/trasaction_details_model.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 class DashboardProvider extends ChangeNotifier {
-  final GetTransactionsUsecase getTransactionsUsecase;
+  List<TransactionDetailsModel> _income = [];
+  List<TransactionDetailsModel> _expense = [];
 
-  DashboardProvider({required this.getTransactionsUsecase});
-
-  Future<double> totalOfTransaction(TransactionType transactionType) async {
-    final transactions = await getTransactionsUsecase(transactionType);
-
-    final box = await Hive.openBox('analysisOf${transactionType.name}');
-
-    double total = 0;
-    for (final transaction in transactions) {
-      total += transaction.amount;
-    }
-    await box.put('total', total);
-    return total;
+  // 1. Sync data from ProxyProvider
+  void updateData(List<TransactionDetailsModel> income, List<TransactionDetailsModel> expense) {
+    _income = income;
+    _expense = expense;
+    notifyListeners();
   }
 
-  Future<List> getTransactionRatio(
-    TransactionType transactionType,
-    TransactionRatioType transactionRatioType,
-  ) async {
-    final transactions = await getTransactionsUsecase(transactionType);
-    String label;
-    double amount;
-    double total = 0;
+  // 2. Simple Synchronous Getters
+  double get incomeTotal => _income.fold(0.0, (p, e) => p + e.amount);
+  double get expenseTotal => _expense.fold(0.0, (p, e) => p + e.amount);
 
-    if (transactions.isNotEmpty) {
-      total = transactions.fold(
-        0,
-        (previousValue, element) => previousValue + element.amount,
-      );
-    }
+  // Getters that return actual Lists, not Futures
+  List<TransactionCategoryDistribution> get incomeDistribution => 
+      _calculate(TransactionRatioType.category, _income).cast<TransactionCategoryDistribution>();
 
-    if (transactionRatioType == TransactionRatioType.category) {
-      List<TransactionCategoryDistribution> data = [];
+  List<TransactionCategoryDistribution> get expenseDistribution => 
+      _calculate(TransactionRatioType.category, _expense).cast<TransactionCategoryDistribution>();
 
-      for (final transaction in transactions) {
-        label = transaction.transactionCategoryLabel;
-        amount = transaction.amount;
-        double percentage = (amount / total) * 100;
+  List<TransactionSourceDistribution> get incomeSourceDistribution => 
+      _calculate(TransactionRatioType.source, _income).cast<TransactionSourceDistribution>();
 
-        if (data.any((element) => element.label == label)) {
-          final index = data.indexWhere((element) => element.label == label);
-          data[index].percentage += percentage;
-          data[index].amount += amount;
-        } else {
-          data.add(
-            TransactionCategoryDistribution(
-              label: label,
-              percentage: percentage,
-              amount: amount,
-            ),
-          );
-        }
+  List<TransactionSourceDistribution> get expenseSourceDistribution => 
+      _calculate(TransactionRatioType.source, _expense).cast<TransactionSourceDistribution>();
+
+  // 3. Synchronous Calculation Method
+  List _calculate(TransactionRatioType type, List<TransactionDetailsModel> transactions) {
+    if (transactions.isEmpty) return [];
+
+    final double total = transactions.fold(0, (p, e) => p + e.amount);
+    final bool isCategory = type == TransactionRatioType.category;
+    
+    // Using a Map to group data instantly
+    final Map<String, dynamic> grouped = {};
+
+    for (final tx in transactions) {
+      final String label = isCategory ? tx.transactionCategoryLabel : tx.transactionSourceLabel;
+      final double amount = tx.amount;
+      final double percentage = (amount / total) * 100;
+
+      if (grouped.containsKey(label)) {
+        grouped[label].amount += amount;
+        grouped[label].percentage += percentage;
+      } else {
+        grouped[label] = isCategory 
+          ? TransactionCategoryDistribution(label: label, amount: amount, percentage: percentage)
+          : TransactionSourceDistribution(label: label, amount: amount, percentage: percentage);
       }
-
-      return data;
-    } else {
-      List<TransactionSourceDistribution> data = [];
-
-      for (final transaction in transactions) {
-        label = transaction.transactionSourceLabel;
-        amount = transaction.amount;
-        double percentage = (amount / total) * 100;
-
-        if (data.any((element) => element.label == label)) {
-          final index = data.indexWhere((element) => element.label == label);
-          data[index].percentage += percentage;
-          data[index].amount += amount;
-        } else {
-          data.add(
-            TransactionSourceDistribution(
-              label: label,
-              percentage: percentage,
-              amount: amount,
-            ),
-          );
-        }
-      }
-
-      return data;
     }
+    return grouped.values.toList();
   }
 }

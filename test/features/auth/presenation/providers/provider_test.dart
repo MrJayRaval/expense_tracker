@@ -2,6 +2,7 @@ import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart
 import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -15,13 +16,13 @@ void main() {
   late MockSignInUseCase mockSignInUseCase;
   late MockSignUpUseCase mockSignUpUseCase;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
-  late AuthProviderr provider;
+  late AuthProvider provider;
 
   setUp(() {
     mockSignInUseCase = MockSignInUseCase();
     mockSignUpUseCase = MockSignUpUseCase();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
-    provider = AuthProviderr(
+    provider = AuthProvider(
       signUp: mockSignUpUseCase,
       signIn: mockSignInUseCase,
       resetPassword: mockResetPasswordUseCase,
@@ -57,9 +58,9 @@ void main() {
   );
 
   test('should throws exception when logIn of provider fails', () async {
-    when(
-      () => mockSignInUseCase(any(), any()),
-    ).thenThrow(Exception('login failed'));
+    when(() => mockSignInUseCase(any(), any())).thenThrow(
+      FirebaseAuthException(code: 'wrong-password', message: 'bad password'),
+    );
 
     final states = <bool>[];
     provider.addListener(() {
@@ -72,6 +73,7 @@ void main() {
     expect(result, false);
     expect(states, [true, false]);
     expect(provider.error, isNotNull);
+    expect(provider.error, 'Invalid email or password.');
   });
 
   // =======================================================================================
@@ -98,9 +100,9 @@ void main() {
   });
 
   test('should throw exception when register on provider fails', () async {
-    when(
-      () => mockSignUpUseCase(any(), any()),
-    ).thenThrow(Exception('User exists'));
+    when(() => mockSignUpUseCase(any(), any())).thenThrow(
+      FirebaseAuthException(code: 'email-already-in-use'),
+    );
 
     final states = <bool>[];
     provider.addListener(() {
@@ -114,5 +116,18 @@ void main() {
     expect(result, false);
     expect(states, [true, false]);
     expect(provider.error, isNotNull);
+    expect(provider.error, 'An account already exists for that email.');
+  });
+
+  test('clearError should reset error state', () async {
+    when(() => mockSignInUseCase(any(), any())).thenThrow(
+      FirebaseAuthException(code: 'invalid-email'),
+    );
+
+    await provider.logIn('a', 'b');
+    expect(provider.error, isNotNull);
+
+    provider.clearError();
+    expect(provider.error, null);
   });
 }

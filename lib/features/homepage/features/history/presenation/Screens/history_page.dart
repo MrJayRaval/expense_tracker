@@ -28,17 +28,15 @@ class _HistoryPageState extends State<HistoryPage> {
 
     // Fetch transactions once the widget is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<HistoryProvider>();
-      if (provider.transactions.isEmpty) {
-        provider.getTransactions(transactionType);
-      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
-    final grouped = provider.groupByDate(provider.transactions);
+    final grouped = provider.groupByDate(transactionType == TransactionType.expense
+        ? provider.expenseTransactions
+        : provider.incomeTransactions);
     final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     void deleteParticularTransaction(String id) {
@@ -60,7 +58,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   onTap: () {
                     setState(() {
                       transactionType = TransactionType.expense;
-                      provider.getTransactions(transactionType);
                     });
                   },
                   child: Container(
@@ -97,7 +94,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   onTap: () {
                     setState(() {
                       transactionType = TransactionType.income;
-                      provider.getTransactions(transactionType);
                     });
                   },
                   child: Container(
@@ -206,57 +202,56 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 }
 
-class HistoryFAB extends StatefulWidget {
-  const HistoryFAB({super.key});
+// class HistoryFAB extends StatefulWidget {
+//   const HistoryFAB({super.key});
 
-  @override
-  State<HistoryFAB> createState() => _HistoryFABState();
-}
+//   @override
+//   State<HistoryFAB> createState() => _HistoryFABState();
+// }
 
-class _HistoryFABState extends State<HistoryFAB> {
-  final addCategoryController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+// class _HistoryFABState extends State<HistoryFAB> {
+//   final addCategoryController = TextEditingController();
 
-  @override
-  void dispose() {
-    addCategoryController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     addCategoryController.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      backgroundColor: ThemeHelper.onSurface,
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              side: BorderSide(color: ThemeHelper.outline),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
-            title: Text('Remove All History'),
-            actions: [
-              TextButton(onPressed: () {
-                Navigator.pop(context);
-              }, child: Text('Cancel')),
-              TextButton(onPressed: () async {
-                debugPrint("${await Hive.box('expense').clear()} entry removed)");
-                debugPrint("${await Hive.box('income').clear()} entry removed)");
-                Navigator.pop(context);
-              }, child: Text('Confirm')),
-            ],
-          ),
-        );
+//   @override
+//   Widget build(BuildContext context) {
+//     return FloatingActionButton.extended(
+//       backgroundColor: ThemeHelper.onSurface,
+//       onPressed: () {
+//         showDialog(
+//           context: context,
+//           builder: (context) => AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               side: BorderSide(color: ThemeHelper.outline),
+//               borderRadius: BorderRadius.circular(12),
+//             ),
+//             titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
+//             title: Text('Remove All History'),
+//             actions: [
+//               TextButton(onPressed: () {
+//                 Navigator.pop(context);
+//               }, child: Text('Cancel')),
+//               TextButton(onPressed: () async {
+//                 debugPrint("${await Hive.box('expense').clear()} entry removed)");
+//                 debugPrint("${await Hive.box('income').clear()} entry removed)");
+//                 Navigator.pop(context);
+//               }, child: Text('Confirm')),
+//             ],
+//           ),
+//         );
 
         
-      },
-      icon: Icon(Icons.delete, color: ThemeHelper.error),
-      label: Text(
-        'Remove All History',
-        style: TextStyle(color: ThemeHelper.surface),
-      ),
-    );
-  }
-}
+//       },
+//       icon: Icon(Icons.delete, color: ThemeHelper.error),
+//       label: Text(
+//         'Remove All History',
+//         style: TextStyle(color: ThemeHelper.surface),
+//       ),
+//     );
+//   }
+// }

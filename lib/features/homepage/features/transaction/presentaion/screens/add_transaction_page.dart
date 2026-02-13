@@ -10,12 +10,13 @@ import '../../../../../../ui/models/trasaction_details_model.dart';
 import '../../domain/entity/transaction_source_model.dart';
 import '../provider/transaction_provider.dart';
 import 'transaction_source.dart';
-import '../../../../../../ui/components/button.dart';
+
 import '../../../../../../ui/models/calc_input_model.dart';
 import '../../../../../../ui/components/onscreen_keyboard.dart';
 import '../../../../../../ui/components/raise_error.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final TransactionType transactionType;
@@ -96,96 +97,43 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              transactionType = TransactionType.expense;
-                            });
-                          },
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom:
-                                    (transactionType == TransactionType.expense)
-                                    ? BorderSide(
-                                        width: 3,
-                                        color: ThemeHelper.primary,
-                                      )
-                                    : BorderSide.none,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Expense',
-                                style: Theme.of(context).textTheme.titleLarge!
-                                    .copyWith(color: ThemeHelper.onSurface),
-                              ),
-                            ),
-                          ),
+                  // Toggle Button
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: ThemeHelper.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        _buildTypeToggle(
+                          context,
+                          label: 'Expense',
+                          type: TransactionType.expense,
+                          isSelected:
+                              transactionType == TransactionType.expense,
                         ),
-                      ),
-
-                      // Vertical divider between the two tabs
-                      Container(
-                        width: 1,
-                        height: 40,
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        color: Theme.of(context).dividerColor,
-                      ),
-
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              transactionType = TransactionType.income;
-                            });
-                          },
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom:
-                                    (transactionType == TransactionType.income)
-                                    ? BorderSide(
-                                        width: 3,
-                                        color: ThemeHelper.primary,
-                                      )
-                                    : BorderSide.none,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Income',
-                                style: Theme.of(context).textTheme.titleLarge!
-                                    .copyWith(color: ThemeHelper.onSurface),
-                              ),
-                            ),
-                          ),
+                        _buildTypeToggle(
+                          context,
+                          label: 'Income',
+                          type: TransactionType.income,
+                          isSelected: transactionType == TransactionType.income,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
-                  SizedBox(height: 20),
-
+                  // Selection Cards
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: CustOutlinedButton(
-                          label:
-                              selectedTransactionCategory?.label ??
-                              '${transactionType.name.capitalize} Category',
-                          textStyle: Theme.of(context).textTheme.bodyMedium!,
-                          borderRadius: 6,
-                          borderWidth: 1.5,
-                          borderColor: ThemeHelper.outline,
-                          function: () {
+                        child: _buildSelectionCard(
+                          context,
+                          title: "Category",
+                          label: selectedTransactionCategory?.label,
+                          iconPath: selectedTransactionCategory?.icon,
+                          onTap: () {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -197,7 +145,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       Text("Choose Category"),
                                     ],
                                   ),
-
                                   content: SizedBox(
                                     width: double.maxFinite,
                                     height: 300,
@@ -220,19 +167,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           },
                         ),
                       ),
-
-                      SizedBox(width: 10),
-
+                      const SizedBox(width: 16),
                       Expanded(
-                        child: CustOutlinedButton(
-                          label:
-                              selectedTransactionSource?.label ??
-                              '${transactionType.name.capitalize} Source',
-                          textStyle: ThemeHelper.bodyMedium!,
-                          borderRadius: 6,
-                          borderWidth: 1.5,
-                          borderColor: ThemeHelper.outline,
-                          function: () {
+                        child: _buildSelectionCard(
+                          context,
+                          title: "Source",
+                          label: selectedTransactionSource?.label,
+                          iconPath: selectedTransactionSource?.icon,
+                          onTap: () {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -244,7 +186,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       Text("Choose Source"),
                                     ],
                                   ),
-
                                   content: SizedBox(
                                     width: double.maxFinite,
                                     height: 300,
@@ -271,7 +212,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     ],
                   ),
 
-                  SizedBox(height: 15),
+                  SizedBox(height: 25),
 
                   OnScreenKeyBoard(
                     isEditMode: widget.isEditMode,
@@ -376,7 +317,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                               );
                               await context
                                   .read<HistoryProvider>()
-                                  .getTransactions(transactionType);
+                                  .loadTransaction();
                             } else {
                               // Await add, then refresh history. Also optimistically add to history list.
                               context
@@ -384,10 +325,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   .addTransaction(transactionType, transaction);
                               context
                                   .read<HistoryProvider>()
-                                  .addTransactionToHistory(transaction);
+                                  .addTransactionToHistory(
+                                    transactionType,
+                                    transaction,
+                                  );
+
                               await context
                                   .read<HistoryProvider>()
-                                  .getTransactions(transactionType);
+                                  .loadTransaction();
                             }
 
                             if (!mounted) return;
@@ -459,6 +404,135 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       ),
     );
   }
+
+  Widget _buildTypeToggle(
+    BuildContext context, {
+    required String label,
+    required TransactionType type,
+    required bool isSelected,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (!isSelected) {
+            setState(() {
+              transactionType = type;
+              // Reset category and source when changing transaction type
+              selectedTransactionCategory = null;
+              selectedTransactionSource = null;
+            });
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? ThemeHelper.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: ThemeHelper.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: isSelected
+                    ? ThemeHelper.onPrimary
+                    : ThemeHelper.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionCard(
+    BuildContext context, {
+    required String title,
+    required String? label,
+    required String? iconPath,
+    required VoidCallback onTap,
+  }) {
+    final bool hasSelection = label != null && label.isNotEmpty;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        height: 120,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: ThemeHelper.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: hasSelection ? ThemeHelper.primary : ThemeHelper.outline,
+            width: hasSelection ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (hasSelection && iconPath != null)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: ThemeHelper.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  iconPath,
+                  height: 24,
+                  width: 24,
+                  colorFilter: ColorFilter.mode(
+                    ThemeHelper.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                title == "Category"
+                    ? Icons.category_outlined
+                    : Icons.account_balance_wallet_outlined,
+                size: 32,
+                color: ThemeHelper.onSurfaceVariant.withOpacity(0.5),
+              ),
+
+            const SizedBox(height: 12),
+
+            Text(
+              hasSelection ? label : "Select $title",
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: hasSelection
+                    ? ThemeHelper.onSurface
+                    : ThemeHelper.onSurfaceVariant,
+                fontWeight: hasSelection ? FontWeight.w700 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class AddTransactionFAB extends StatefulWidget {
@@ -489,7 +563,7 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
         'Add Transaction',
         style: Theme.of(
           context,
-        ).textTheme.titleLarge!.copyWith(color: ThemeHelper.onError),
+        ).textTheme.titleMedium!.copyWith(color: ThemeHelper.onError),
       ),
     );
   }

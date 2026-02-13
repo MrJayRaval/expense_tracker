@@ -22,22 +22,25 @@ class HistoryRepositoryImpl implements HistoryRepository {
   Future<List<TransactionDetailsModel>> getTransaction(
     TransactionType transactionType,
   ) async {
+    final localData = await local.getTransaction(transactionType);
+
     // Try to fetch remote data first. If successful, cache and return it so
     // the UI gets the up-to-date remote data on first load.
     try {
-      final remoteData = await remote.fetchTransactionHistory(transactionType);
+      final remoteData = await remote
+          .fetchTransactionHistory(transactionType)
+          .timeout(const Duration(seconds: 5));
       if (remoteData.isNotEmpty) {
         await local.cacheTransactionHistory(transactionType, remoteData);
-        return remoteData;
       } else {
         await local.deleteAllTransaction(transactionType);
       }
+      return remoteData;
     } catch (_) {
       // ignore and fall back to local
     }
 
     // If remote fetch failed or returned empty, fall back to local cache.
-    final localData = await local.getTransaction(transactionType);
     return localData;
   }
 

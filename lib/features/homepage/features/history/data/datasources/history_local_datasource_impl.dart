@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 class HistoryLocalDatasourceImpl implements HistoryLocalDataSource {
   @override
   Future<void> cacheTransactionHistory(TransactionType transactionType, List<TransactionDetailsModel> incomes) async {
-    final box = await Hive.openBox(transactionType.name, );
+    final box = Hive.box(transactionType.name);
     for (final income in incomes) {
       await box.put(income.id, {...income.toJson(), 'id': income.id});
     }
@@ -15,7 +15,7 @@ class HistoryLocalDatasourceImpl implements HistoryLocalDataSource {
 
   @override
   Future<List<TransactionDetailsModel>> getTransaction(TransactionType transactionType, ) async {
-    final box = await Hive.openBox(transactionType.name, );
+    final box = Hive.box(transactionType.name);
     return box.values
         .map(
           (e) => TransactionDetailsModel.fromJson(
@@ -28,19 +28,19 @@ class HistoryLocalDatasourceImpl implements HistoryLocalDataSource {
 
   @override
   Future<void> deleteAllTransaction(TransactionType transactionType, ) async {
-    final box = await Hive.openBox(transactionType.name, );
+    final box = Hive.box(transactionType.name);
     await box.clear();
   }
 
   @override
   Future<void> deleteParticularTransaction(TransactionType transactionType, String id) async {
-    final box = Hive.box(transactionType.name, );
+    final box = Hive.box(transactionType.name);
     return await box.delete(id);
   }
 
   @override
   Future<void> updateTransaction(TransactionType transactionType, TransactionDetailsModel income) async {
-    final box = await Hive.openBox(transactionType.name, );
+    final box = Hive.box(transactionType.name);
     return await box.put(income.id, {...income.toJson(), 'id': income.id});
   }
 

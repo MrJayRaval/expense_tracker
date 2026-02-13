@@ -48,10 +48,13 @@ class _CategoryPageState extends State<CategoryPage>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
+        
         children: [
-          SizedBox(height: 10,),
+          // SizedBox(height: 10,),
           Expanded(
             child: ListView.builder(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 80),
+              physics: const BouncingScrollPhysics(),
               itemCount: category.categories.length,
               itemBuilder: (_, i) {
                 final c = category.categories[i];
@@ -67,7 +70,7 @@ class _CategoryPageState extends State<CategoryPage>
             
                 return Padding(
                   key: ValueKey(c.label),
-                  padding: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Container(
                     decoration: BoxDecoration(
                       color: ThemeHelper.primaryContainer,
@@ -113,6 +116,8 @@ class _CategoryPageState extends State<CategoryPage>
               },
             ),
           ),
+
+          // SizedBox(height: 100,),
         ],
       ),
     );
@@ -145,12 +150,12 @@ class _CategoryFABState extends State<CategoryFAB> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      backgroundColor: ThemeHelper.surface,
+      backgroundColor: ThemeHelper.onSurface,
       onPressed: () => _showAddCategoryDialog(),
-      icon: Icon(Icons.add, color: ThemeHelper.onSurface),
+      icon: Icon(Icons.add, color: ThemeHelper.surface),
       label: Text(
         'Add Category',
-        style: TextStyle(color: ThemeHelper.onSurface),
+        style: TextStyle(color: ThemeHelper.surface),
       ),
     );
   }

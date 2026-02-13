@@ -31,7 +31,7 @@ import 'features/homepage/features/category/presenation/providers/category_provi
 import 'features/homepage/data/data/user_repository.dart';
 import 'features/homepage/data/datasources/user_remote_data_source.dart';
 import 'features/homepage/domain/usecases/fetch_user_details_usecase.dart';
-import 'features/homepage/presentation/providers/dashboard_provider.dart';
+import 'features/homepage/presentation/providers/homepage_provider.dart';
 import 'features/homepage/presentation/screens/homepage.dart';
 import 'features/auth/features/create_profile/data/datasources/profile_remote_data_sources.dart';
 import 'features/auth/features/create_profile/presentation/provider/profile_provider.dart';
@@ -42,7 +42,7 @@ import 'features/homepage/features/transaction/presentaion/provider/transaction_
 import 'firebase_options.dart';
 import 'features/auth/presentation/screen/login_page.dart';
 import 'routes/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -63,6 +63,7 @@ Future<void> main() async {
     Hive.openBox(TransactionType.income.name),
     Hive.openBox('analysisOf${TransactionType.expense.name}'),
     Hive.openBox('analysisOf${TransactionType.income.name}'),
+    Hive.openBox('expenseCategory'),
   ]);
 
   runApp(MyApp());
@@ -119,6 +120,8 @@ class _MyAppState extends State<MyApp> {
         auth: FirebaseAuth.instance,
       ),
     );
+
+    
   }
 
   @override
@@ -132,7 +135,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProviderr(
+          create: (_) => AuthProvider(
             signUp: SignUpUseCase(_authRepository),
             signIn: SignInUseCase(_authRepository),
             resetPassword: ResetPasswordUseCase(_authRepository),
@@ -151,13 +154,6 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
 
-        ChangeNotifierProvider(
-          create: (_) => DashboardProvider(
-            getTransactionsUsecase: GetTransactionsUsecase(
-              _historyRepositoryImpl,
-            ),
-          ),
-        ),
 
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(
@@ -180,6 +176,7 @@ class _MyAppState extends State<MyApp> {
 
         ChangeNotifierProvider(
           create: (_) => HistoryProvider(
+            historyLocalDataSource: HistoryLocalDatasourceImpl(),
             getTransactionUsecase: GetTransactionsUsecase(
               _historyRepositoryImpl,
             ),
@@ -193,6 +190,18 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
+
+        ChangeNotifierProxyProvider<HistoryProvider, DashboardProvider>(
+          create: (_) => DashboardProvider(),
+          update: (context, historyProvider, dashboardProvider) {
+            dashboardProvider!.updateData(
+              historyProvider.incomeTransactions,
+              historyProvider.expenseTransactions,
+            );
+            return dashboardProvider;
+          },
+        )
+
       ],
 
       child: MaterialApp(
@@ -215,8 +224,13 @@ class _MyAppState extends State<MyApp> {
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, asyncSnapshot) {
+            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             if (asyncSnapshot.hasData) {
-              return const      HomePage();
+              return const HomePage();
             }
             return const LoginPage();
           },

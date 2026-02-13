@@ -6,10 +6,12 @@
 *.swp
 .buildlog/
 .history
+.agent
 
 
 
 # Flutter repo-specific
+/.agent
 /bin/cache/
 /bin/internal/bootstrap.bat
 /bin/internal/bootstrap.sh
