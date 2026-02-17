@@ -8,6 +8,19 @@ class CustomPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (sections.isEmpty) {
+      return Center(
+        child: Container(
+          width: 200, // or size
+          height: 200,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: ThemeHelper.outlineVariant.withValues(alpha: 0.2),
+          ),
+          child: const Center(child: Text("No Data")),
+        ),
+      );
+    }
     return PieChart(
       PieChartData(
         sectionsSpace: 2,
@@ -35,6 +48,9 @@ class CustomBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (sections.isEmpty) {
+      return Center(child: Text("No Data", style: ThemeHelper.bodyMedium));
+    }
     double calculatedMaxY =
         maxY ??
         (sections.isEmpty
@@ -71,7 +87,7 @@ class CustomBarChart extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     labels[index],
-                    style: ThemeHelper.titleSmall,// Adjust font size if needed
+                    style: ThemeHelper.titleSmall, // Adjust font size if needed
                     overflow: TextOverflow.ellipsis,
                   ),
                 );
@@ -100,7 +116,7 @@ class CustomBarChart extends StatelessWidget {
                 }
                 return Padding(
                   padding: const EdgeInsets.only(left: 10.0),
-                  child: Text(text, style: ThemeHelper.bodySmall,),
+                  child: Text(text, style: ThemeHelper.bodySmall),
                 );
               },
             ),

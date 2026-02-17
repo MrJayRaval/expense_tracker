@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:expense_tracker/ui/components/empty_state_widget.dart';
 import '../../../transaction/presentaion/screens/add_transaction_page.dart';
-import '../../../../../../ui/components/theme_provider.dart';
+import 'package:expense_tracker/ui/models/trasaction_details_model.dart';
+
+enum SortOption { newest, oldest, amountHigh, amountLow }
 
 class HistoryPage extends StatefulWidget {
   final TransactionType? transactionType;
@@ -24,6 +26,8 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   late TransactionType transactionType;
+  SortOption _sortOption = SortOption.newest;
+  final Set<String> _selectedCategories = {};
 
   @override
   void initState() {
@@ -37,19 +41,6 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
-    final grouped = provider.groupByDate(
-      transactionType == TransactionType.expense
-          ? provider.expenseTransactions
-          : provider.incomeTransactions,
-    );
-    final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
-
-    void deleteParticularTransaction(String id) {
-      context.read<HistoryProvider>().deleteParticularTransaction(
-        transactionType,
-        id,
-      );
-    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -64,15 +55,44 @@ class _HistoryPageState extends State<HistoryPage> {
             onValueChanged: (value) {
               setState(() {
                 transactionType = value;
+                _selectedCategories.clear(); // Clear filter on type change
               });
             },
           ),
 
-          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ActionChip(
+                  avatar: const Icon(Icons.filter_list, size: 16),
+                  label: const Text('Filter'),
+                  onPressed: () {
+                    final allTransactions =
+                        transactionType == TransactionType.expense
+                        ? provider.expenseTransactions
+                        : provider.incomeTransactions;
+                    final categories = allTransactions
+                        .map((e) => e.transactionCategoryLabel)
+                        .toSet()
+                        .toList();
+                    _showFilterDialog(categories);
+                  },
+                ),
+                const SizedBox(width: 10),
+                ActionChip(
+                  avatar: const Icon(Icons.sort, size: 16),
+                  label: const Text('Sort'),
+                  onPressed: _showSortDialog,
+                ),
+              ],
+            ),
+          ),
 
           Expanded(
             child: provider.isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : provider.error != null
                 ? Center(child: Text(provider.error!))
                 : ValueListenableBuilder<Box>(
@@ -81,22 +101,27 @@ class _HistoryPageState extends State<HistoryPage> {
                       transactionType.name,
                     ).listenable(),
                     builder: (context, box, _) {
-                      // Re-calculate grouped data inside builder to ensure it's fresh
-                      final grouped = provider.groupByDate(
-                        transactionType == TransactionType.expense
-                            ? provider.expenseTransactions
-                            : provider.incomeTransactions,
-                      );
+                      var transactions =
+                          transactionType == TransactionType.expense
+                          ? provider.expenseTransactions
+                          : provider.incomeTransactions;
 
-                      final sortedDates = grouped.keys.toList()
-                        ..sort((a, b) => b.compareTo(a));
+                      // 1. Filter
+                      if (_selectedCategories.isNotEmpty) {
+                        transactions = transactions
+                            .where(
+                              (t) => _selectedCategories.contains(
+                                t.transactionCategoryLabel,
+                              ),
+                            )
+                            .toList();
+                      }
 
-                      if (grouped.isEmpty) {
+                      if (transactions.isEmpty) {
                         return EmptyStateWidget(
-                          title:
-                              "No ${transactionType.name.capitalize} History",
+                          title: "No ${transactionType.name.capitalize} Found",
                           description:
-                              "You haven't added any ${transactionType.name} records yet.",
+                              "Try adjusting your filters or add new records.",
                           icon: Icons.history_edu_outlined,
                           actionLabel: "Add ${transactionType.name.capitalize}",
                           onAction: () {
@@ -112,109 +137,230 @@ class _HistoryPageState extends State<HistoryPage> {
                         );
                       }
 
-                      return ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 80),
-                        itemCount: grouped.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final date = sortedDates[index];
-                          final dayTransaction = grouped[date]!;
-                          final isAnimationsEnabled = context
-                              .read<ThemeProvider>()
-                              .isAnimationsEnabled;
+                      // 2. Sort & Group
+                      final isGrouped =
+                          _sortOption == SortOption.newest ||
+                          _sortOption == SortOption.oldest;
 
-                          Widget item = Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0,
-                                ),
-                                child: Text(
-                                  DateFormat("MMM d, yyyy").format(date),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(
-                                        color: ThemeHelper.onSurface,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ),
-                              const Divider(),
-                              ...dayTransaction.map(
-                                (transaction) => GestureDetector(
-                                  onTap: () => showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return HistoryDetailsPage(
-                                        context: context,
-                                        deleteButtonFunction: () {
-                                          deleteParticularTransaction(
-                                            transaction.id,
-                                          );
-                                          Navigator.pop(context);
-                                        },
-                                        title:
-                                            "${transactionType.name.capitalize}",
-                                        transaction: transaction,
-                                        transactionType: transactionType,
-                                      );
-                                    },
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: HistoryTile(
-                                      transactionCategoryIcon:
-                                          transaction.transactionCategoryIcon,
-                                      transactionCategoryLabel:
-                                          transaction.transactionCategoryLabel,
-                                      transactionSourceLabel:
-                                          transaction.transactionSourceLabel,
-                                      transactionSourceIcon:
-                                          transaction.transactionSourceIcon,
-                                      amount: transaction.amount,
-                                      color:
-                                          transactionType ==
-                                              TransactionType.income
-                                          ? ThemeHelper.primary
-                                          : ThemeHelper.error,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
+                      if (!isGrouped) {
+                        // Flat List (Amount Sort)
+                        final sortedList = List<TransactionDetailsModel>.from(
+                          transactions,
+                        );
+                        if (_sortOption == SortOption.amountHigh) {
+                          sortedList.sort(
+                            (a, b) => b.amount.compareTo(a.amount),
                           );
+                        } else {
+                          sortedList.sort(
+                            (a, b) => a.amount.compareTo(b.amount),
+                          );
+                        }
 
-                          if (isAnimationsEnabled) {
-                            return TweenAnimationBuilder<double>(
-                              duration: Duration(
-                                milliseconds: 400 + (index * 100),
-                              ),
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              curve: Curves.easeOutQuart,
-                              builder: (context, value, child) {
-                                return Opacity(
-                                  opacity: value,
-                                  child: Transform.translate(
-                                    offset: Offset(0, 30 * (1 - value)),
-                                    child: child,
+                        return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 80),
+                          itemCount: sortedList.length,
+                          itemBuilder: (context, index) {
+                            final transaction = sortedList[index];
+                            return _buildTransactionItem(transaction, context);
+                          },
+                        );
+                      } else {
+                        // Grouped List (Date Sort)
+                        final grouped = provider.groupByDate(transactions);
+                        final sortedDates = grouped.keys.toList();
+                        if (_sortOption == SortOption.newest) {
+                          sortedDates.sort((a, b) => b.compareTo(a));
+                        } else {
+                          sortedDates.sort((a, b) => a.compareTo(b));
+                        }
+
+                        return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 80),
+                          itemCount: grouped.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final date = sortedDates[index];
+                            final dayTransaction = grouped[date]!;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0,
                                   ),
-                                );
-                              },
-                              child: item,
+                                  child: Text(
+                                    DateFormat("MMM d, yyyy").format(date),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(
+                                          color: ThemeHelper.onSurface,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                                const Divider(),
+                                ...dayTransaction.map(
+                                  (transaction) => _buildTransactionItem(
+                                    transaction,
+                                    context,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
                             );
-                          } else {
-                            return item;
-                          }
-                        },
-                      );
+                          },
+                        );
+                      }
                     },
                   ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTransactionItem(
+    TransactionDetailsModel transaction,
+    BuildContext context,
+  ) {
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) {
+          return HistoryDetailsPage(
+            context: context,
+            deleteButtonFunction: () {
+              context.read<HistoryProvider>().deleteParticularTransaction(
+                transactionType,
+                transaction.id,
+              );
+              Navigator.pop(context);
+            },
+            title: "${transactionType.name.capitalize}",
+            transaction: transaction,
+            transactionType: transactionType,
+          );
+        },
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: HistoryTile(
+          transactionCategoryIcon: transaction.transactionCategoryIcon,
+          transactionCategoryLabel: transaction.transactionCategoryLabel,
+          transactionSourceLabel: transaction.transactionSourceLabel,
+          transactionSourceIcon: transaction.transactionSourceIcon,
+          amount: transaction.amount,
+          color: transactionType == TransactionType.income
+              ? ThemeHelper.primary
+              : ThemeHelper.error,
+        ),
+      ),
+    );
+  }
+
+  void _showSortDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By", style: ThemeHelper.titleMedium),
+              const SizedBox(height: 10),
+              _buildSortOption(SortOption.newest, "Date (Newest First)"),
+              _buildSortOption(SortOption.oldest, "Date (Oldest First)"),
+              _buildSortOption(SortOption.amountHigh, "Amount (High to Low)"),
+              _buildSortOption(SortOption.amountLow, "Amount (Low to High)"),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortOption(SortOption option, String label) {
+    return RadioListTile<SortOption>(
+      title: Text(label),
+      value: option,
+      groupValue: _sortOption,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() => _sortOption = value);
+          Navigator.pop(context);
+        }
+      },
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  void _showFilterDialog(List<String> categories) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Filter by Category",
+                        style: ThemeHelper.titleMedium,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() => _selectedCategories.clear());
+                          setModalState(() {});
+                        },
+                        child: const Text("Clear"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    children: categories.map((cat) {
+                      final isSelected = _selectedCategories.contains(cat);
+                      return FilterChip(
+                        label: Text(cat),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedCategories.add(cat);
+                            } else {
+                              _selectedCategories.remove(cat);
+                            }
+                          });
+                          setModalState(() {});
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

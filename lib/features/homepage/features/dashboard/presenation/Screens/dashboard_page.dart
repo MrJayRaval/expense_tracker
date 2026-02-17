@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
+import 'package:intl/intl.dart';
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -37,11 +39,10 @@ class _DashboardPageState extends State<DashboardPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // 3. Check for Empty Data
-    if (dashboard.incomeTotal == 0 && dashboard.expenseTotal == 0) {
-      return const Scaffold(
-        floatingActionButton: AddTransactionFAB(),
-        body: EmptyDashboardState(),
+    if (!dashboard.hasAnyTransaction) {
+      return Scaffold(
+        floatingActionButton: const AddTransactionFAB(),
+        body: const EmptyDashboardState(),
       );
     }
 
@@ -69,6 +70,9 @@ class _DashboardPageState extends State<DashboardPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Month Selector
+          _buildMonthSelector(dashboard),
+
           // Header Totals Section
           _buildTotalsHeader(dashboard),
 
@@ -83,7 +87,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     const SizedBox(height: 10),
 
                     // Income Overview Card
-                    
 
                     // Expense Overview Card
                     _buildOverviewCard(
@@ -98,7 +101,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           .toList(),
                       maxY: _getMaxY(expenseBarGroups),
                     ),
-                    
+
                     const SizedBox(height: 30),
 
                     _buildOverviewCard(
@@ -113,7 +116,6 @@ class _DashboardPageState extends State<DashboardPage> {
                           .toList(),
                       maxY: _getMaxY(incomeBarGroups),
                     ),
-
                   ],
                 ),
               ),
@@ -126,6 +128,53 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // --- UI Components ---
 
+  Widget _buildMonthSelector(DashboardProvider provider) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+      color: ThemeHelper.surface,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IconButton(
+            onPressed: () {
+              final newMonth = DateTime(
+                provider.selectedMonth.year,
+                provider.selectedMonth.month - 1,
+              );
+              provider.updateMonth(newMonth);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 20,
+              color: ThemeHelper.onSurface,
+            ),
+          ),
+          Text(
+            DateFormat('MMMM, yyyy').format(provider.selectedMonth),
+            style: ThemeHelper.titleMedium!.copyWith(
+              color: ThemeHelper.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              final newMonth = DateTime(
+                provider.selectedMonth.year,
+                provider.selectedMonth.month + 1,
+              );
+              provider.updateMonth(newMonth);
+            },
+            icon: Icon(
+              Icons.arrow_forward_ios,
+              size: 20,
+              color: ThemeHelper.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTotalsHeader(DashboardProvider provider) {
     return Container(
       height: 65,
@@ -137,7 +186,8 @@ class _DashboardPageState extends State<DashboardPage> {
           _buildTotalItem(
             label: TransactionType.income.name.capitalizeFirst!,
             amount: provider.incomeTotal,
-            color: ThemeHelper.error,
+            color: ThemeHelper
+                .error, // Wait, is income typically error color? Usually Green. But using exiting code.
           ),
           Container(width: 0.5, color: ThemeHelper.outlineVariant),
           _buildTotalItem(
