@@ -158,7 +158,7 @@ class HistoryDetailsPage extends StatelessWidget {
                 children: [
                   Text('Account', style: ThemeHelper.bodyMedium),
                   SizedBox(height: 5),
-                  Text('catagory', style: ThemeHelper.bodyMedium),
+                  Text('Category', style: ThemeHelper.bodyMedium),
                 ],
               ),
 
@@ -173,7 +173,7 @@ class HistoryDetailsPage extends StatelessWidget {
                         transaction.transactionCategoryIcon,
                         height: 15,
                         colorFilter: ColorFilter.mode(
-                          ThemeHelper.secondary,
+                          ThemeHelper.primary,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -187,7 +187,7 @@ class HistoryDetailsPage extends StatelessWidget {
                   SizedBox(height: 5),
                   Row(
                     children: [
-                      SvgPicture.asset(transaction.transactionSourceIcon, height: 15),
+                      SvgPicture.asset(transaction.transactionSourceIcon, colorFilter: ColorFilter.mode(ThemeHelper.secondary, BlendMode.srcIn), height: 15),
                       SizedBox(width: 5),
                       Text(
                         transaction.transactionSourceLabel,

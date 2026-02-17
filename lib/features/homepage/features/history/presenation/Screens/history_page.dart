@@ -1,4 +1,5 @@
 import 'package:expense_tracker/ui/models/enum.dart';
+import '../../../../../../ui/components/segmented_toggle.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../config/theme_helper.dart';
@@ -9,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:expense_tracker/ui/components/empty_state_widget.dart';
+import '../../../transaction/presentaion/screens/add_transaction_page.dart';
+import '../../../../../../ui/components/theme_provider.dart';
 
 class HistoryPage extends StatefulWidget {
   final TransactionType? transactionType;
@@ -27,16 +31,17 @@ class _HistoryPageState extends State<HistoryPage> {
     transactionType = widget.transactionType ?? TransactionType.expense;
 
     // Fetch transactions once the widget is mounted
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
-    final grouped = provider.groupByDate(transactionType == TransactionType.expense
-        ? provider.expenseTransactions
-        : provider.incomeTransactions);
+    final grouped = provider.groupByDate(
+      transactionType == TransactionType.expense
+          ? provider.expenseTransactions
+          : provider.incomeTransactions,
+    );
     final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     void deleteParticularTransaction(String id) {
@@ -50,73 +55,17 @@ class _HistoryPageState extends State<HistoryPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      transactionType = TransactionType.expense;
-                    });
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: (transactionType == TransactionType.expense)
-                            ? BorderSide(width: 3, color: ThemeHelper.primary)
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Expense',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: ThemeHelper.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Vertical divider between the two tabs
-              Container(
-                width: 1,
-                height: 40,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                color: Theme.of(context).dividerColor,
-              ),
-
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      transactionType = TransactionType.income;
-                    });
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: (transactionType == TransactionType.income)
-                            ? BorderSide(width: 3, color: ThemeHelper.primary)
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Income',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: ThemeHelper.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          SegmentedToggle<TransactionType>(
+            options: {
+              TransactionType.expense: 'Expense',
+              TransactionType.income: 'Income',
+            },
+            selectedValue: transactionType,
+            onValueChanged: (value) {
+              setState(() {
+                transactionType = value;
+              });
+            },
           ),
 
           SizedBox(height: 20),
@@ -132,28 +81,67 @@ class _HistoryPageState extends State<HistoryPage> {
                       transactionType.name,
                     ).listenable(),
                     builder: (context, box, _) {
-                      final items = box.values.toList();
-                      if (items.isEmpty) {
-                        return Center(child: Text('No history found'));
+                      // Re-calculate grouped data inside builder to ensure it's fresh
+                      final grouped = provider.groupByDate(
+                        transactionType == TransactionType.expense
+                            ? provider.expenseTransactions
+                            : provider.incomeTransactions,
+                      );
+
+                      final sortedDates = grouped.keys.toList()
+                        ..sort((a, b) => b.compareTo(a));
+
+                      if (grouped.isEmpty) {
+                        return EmptyStateWidget(
+                          title:
+                              "No ${transactionType.name.capitalize} History",
+                          description:
+                              "You haven't added any ${transactionType.name} records yet.",
+                          icon: Icons.history_edu_outlined,
+                          actionLabel: "Add ${transactionType.name.capitalize}",
+                          onAction: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddTransactionPage(
+                                  transactionType: transactionType,
+                                ),
+                              ),
+                            );
+                          },
+                        );
                       }
 
                       return ListView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 80),
                         itemCount: grouped.length,
                         itemBuilder: (BuildContext context, int index) {
                           final date = sortedDates[index];
                           final dayTransaction = grouped[date]!;
+                          final isAnimationsEnabled = context
+                              .read<ThemeProvider>()
+                              .isAnimationsEnabled;
 
-                          return Column(
+                          Widget item = Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                DateFormat("MMM d, yyyy").format(date),
-                                style: Theme.of(context).textTheme.titleMedium!
-                                    .copyWith(color: ThemeHelper.onSurface),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                child: Text(
+                                  DateFormat("MMM d, yyyy").format(date),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: ThemeHelper.onSurface,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
                               ),
-                              Divider(),
-
+                              const Divider(),
                               ...dayTransaction.map(
                                 (transaction) => GestureDetector(
                                   onTap: () => showDialog(
@@ -174,23 +162,52 @@ class _HistoryPageState extends State<HistoryPage> {
                                       );
                                     },
                                   ),
-                                  child: HistoryTile(
-                                    transactionCategoryIcon:
-                                        transaction.transactionCategoryIcon,
-                                    transactionCategoryLabel:
-                                        transaction.transactionCategoryLabel,
-                                    transactionSourceLabel:
-                                        transaction.transactionSourceLabel,
-                                    transactionSourceIcon:
-                                        transaction.transactionSourceLabel,
-                                    amount: transaction.amount,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: HistoryTile(
+                                      transactionCategoryIcon:
+                                          transaction.transactionCategoryIcon,
+                                      transactionCategoryLabel:
+                                          transaction.transactionCategoryLabel,
+                                      transactionSourceLabel:
+                                          transaction.transactionSourceLabel,
+                                      transactionSourceIcon:
+                                          transaction.transactionSourceIcon,
+                                      amount: transaction.amount,
+                                      color:
+                                          transactionType ==
+                                              TransactionType.income
+                                          ? ThemeHelper.primary
+                                          : ThemeHelper.error,
+                                    ),
                                   ),
                                 ),
                               ),
-
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                             ],
                           );
+
+                          if (isAnimationsEnabled) {
+                            return TweenAnimationBuilder<double>(
+                              duration: Duration(
+                                milliseconds: 400 + (index * 100),
+                              ),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeOutQuart,
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 30 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: item,
+                            );
+                          } else {
+                            return item;
+                          }
                         },
                       );
                     },
@@ -245,7 +262,6 @@ class _HistoryPageState extends State<HistoryPage> {
 //           ),
 //         );
 
-        
 //       },
 //       icon: Icon(Icons.delete, color: ThemeHelper.error),
 //       label: Text(

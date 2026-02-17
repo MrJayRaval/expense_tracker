@@ -64,3 +64,30 @@ class CategoryProvider with ChangeNotifier {
     return check;
   }
 }
+
+class ExpenseCategoryProvider extends CategoryProvider {
+  ExpenseCategoryProvider({
+    required super.addCategoryUsecase,
+    required super.getCategoryUsecase,
+    required super.deleteCategoryUsecase,
+    required super.isCategoryDuplicatedUseCase,
+  });
+}
+
+class IncomeCategoryProvider extends CategoryProvider {
+  IncomeCategoryProvider({
+    required super.addCategoryUsecase,
+    required super.getCategoryUsecase,
+    required super.deleteCategoryUsecase,
+    required super.isCategoryDuplicatedUseCase,
+  });
+}
+
+class SourceProvider extends CategoryProvider {
+  SourceProvider({
+    required super.addCategoryUsecase,
+    required super.getCategoryUsecase,
+    required super.deleteCategoryUsecase,
+    required super.isCategoryDuplicatedUseCase,
+  });
+}

@@ -2,7 +2,7 @@ import 'package:expense_tracker/features/auth/domain/usecases/reset_usecase.dart
 import 'package:expense_tracker/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -100,9 +100,9 @@ void main() {
   });
 
   test('should throw exception when register on provider fails', () async {
-    when(() => mockSignUpUseCase(any(), any())).thenThrow(
-      FirebaseAuthException(code: 'email-already-in-use'),
-    );
+    when(
+      () => mockSignUpUseCase(any(), any()),
+    ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
 
     final states = <bool>[];
     provider.addListener(() {
@@ -120,9 +120,9 @@ void main() {
   });
 
   test('clearError should reset error state', () async {
-    when(() => mockSignInUseCase(any(), any())).thenThrow(
-      FirebaseAuthException(code: 'invalid-email'),
-    );
+    when(
+      () => mockSignInUseCase(any(), any()),
+    ).thenThrow(FirebaseAuthException(code: 'invalid-email'));
 
     await provider.logIn('a', 'b');
     expect(provider.error, isNotNull);

@@ -9,8 +9,13 @@ import '../../domain/repository/category_repository.dart';
 class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryLocalDatasource local;
   final CategoryRemoteDatasource remote;
+  final List<CategoryModel> defaultCategories;
 
-  CategoryRepositoryImpl({required this.local, required this.remote});
+  CategoryRepositoryImpl({
+    required this.local,
+    required this.remote,
+    required this.defaultCategories,
+  });
 
   @override
   Future<List<CategoryModel>> getAllCategories() async {
@@ -45,7 +50,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
     }).toList();
 
     // Merge default + custom
-    return [...defaultCategoryModels, ...customModel];
+    return [...defaultCategories, ...customModel];
   }
 
   @override

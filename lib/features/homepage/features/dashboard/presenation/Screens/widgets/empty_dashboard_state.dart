@@ -25,7 +25,7 @@ class EmptyDashboardState extends StatelessWidget {
                     width: 160,
                     height: 160,
                     decoration: BoxDecoration(
-                      color: ThemeHelper.secondary.withOpacity(0.05),
+                      color: ThemeHelper.secondary.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -33,7 +33,7 @@ class EmptyDashboardState extends StatelessWidget {
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: ThemeHelper.secondary.withOpacity(0.1),
+                      color: ThemeHelper.secondary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                   ),

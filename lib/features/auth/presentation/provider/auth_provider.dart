@@ -12,6 +12,8 @@ class AuthProvider with ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  User? get currentUser => FirebaseAuth.instance.currentUser;
+
   AuthProvider({
     required this.signUp,
     required this.signIn,
@@ -100,4 +102,6 @@ class AuthProvider with ChangeNotifier {
 
     return success;
   }
+
+  Future<void> signOut() async => await FirebaseAuth.instance.signOut();
 }

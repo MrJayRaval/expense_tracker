@@ -154,15 +154,22 @@ class _LoginPageState extends State<LoginPage> {
                         if (_formKey.currentState!.validate()) {
                           final success = await context
                               .read<AuthProvider>()
-                              .logIn(
-                            _email.text.trim(),
-                            _password.text.trim(),
-                          );
-                          if (!success) {
-                            await _showErrorDialog(
-                              context,
-                              auth.error ?? 'Unable to sign in.',
-                            );
+                              .logIn(_email.text.trim(), _password.text.trim());
+                          if (success) {
+                            if (context.mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                AppRoutes.dashboard,
+                                (route) => false,
+                              );
+                            }
+                          } else {
+                            if (context.mounted) {
+                              await _showErrorDialog(
+                                context,
+                                auth.error ?? 'Unable to sign in.',
+                              );
+                            }
                           }
                         }
                       },
@@ -176,10 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                         Text('Don\'t have any Account? '),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.register,
-                            );
+                            Navigator.pushNamed(context, AppRoutes.register);
                           },
                           child: Container(
                             decoration: BoxDecoration(

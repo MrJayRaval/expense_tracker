@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class CustPrimaryButton extends StatefulWidget {
   final VoidCallback function;
   final String label;
+  final double? width;
   const CustPrimaryButton({
     super.key,
     required this.function,
     required this.label,
+    this.width,
   });
 
   @override
@@ -17,21 +19,24 @@ class CustPrimaryButton extends StatefulWidget {
 class _CustPrimaryButtonState extends State<CustPrimaryButton> {
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: widget.function,
-      style: ElevatedButton.styleFrom(
-        elevation: 3,
-        backgroundColor: ThemeHelper.primary,
-        foregroundColor: ThemeHelper.onPrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(8),
+    return SizedBox(
+      width: widget.width,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          elevation: 3,
+          backgroundColor: ThemeHelper.primary,
+          foregroundColor: ThemeHelper.onPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusGeometry.circular(8),
+          ),
         ),
-      ),
-      child: Text(
-        widget.label,
-        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          color: ThemeHelper.onPrimary,
-          letterSpacing: 0.8,
+        onPressed: widget.function,
+        child: Text(
+          widget.label,
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: ThemeHelper.onPrimary,
+            letterSpacing: 0.8,
+          ),
         ),
       ),
     );

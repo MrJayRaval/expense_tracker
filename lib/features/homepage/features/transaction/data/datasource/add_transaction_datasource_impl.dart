@@ -32,9 +32,9 @@ class TransactionDataSourceImpl implements TransactionDataSource {
         .doc(await getUID())
         .collection(type)
         .add({
-          'TransactionSource': transaction.transactionCategoryLabel,
+          'TransactionSource': transaction.transactionSourceLabel,
           'TransactionCategoryIcon': transaction.transactionCategoryIcon,
-          'TransactionCategory': transaction.transactionSourceLabel,
+          'TransactionCategory': transaction.transactionCategoryLabel,
           'TransactionSourceIcon': transaction.transactionSourceIcon,
           'Notes': transaction.notes,
           'Amount': transaction.amount,

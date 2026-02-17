@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/homepage/features/transaction/domain/entity/transaction_categoey_model.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/domain/entity/transaction_category_model.dart';
 import 'package:expense_tracker/features/homepage/features/transaction/presentaion/screens/transaction_category.dart';
 import 'package:expense_tracker/ui/models/enum.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -40,8 +40,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   late TransactionInput input;
 
   int? selectedTransactionIndex;
-  TransactionSource? selectedTransactionCategory;
-  TransactionCategory? selectedTransactionSource;
+  TransactionCategory? selectedTransactionCategory;
+  TransactionSource? selectedTransactionSource;
 
   late TransactionType transactionType;
 
@@ -59,11 +59,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         amount: i.amount,
         dateTime: i.dateTime,
       );
-      selectedTransactionCategory = TransactionSource(
+      selectedTransactionCategory = TransactionCategory(
         label: i.transactionCategoryLabel,
         icon: i.transactionCategoryIcon,
       );
-      selectedTransactionSource = TransactionCategory(
+      selectedTransactionSource = TransactionSource(
         label: i.transactionSourceLabel,
         icon: i.transactionSourceIcon,
       );
@@ -147,12 +147,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   ),
                                   content: SizedBox(
                                     width: double.maxFinite,
-                                    height: 300,
+                                    height: 400,
                                     child: TransactionCategoryWidget(
+                                      transactionType: transactionType,
                                       onItemSelected: (value) {
                                         setState(() {
                                           selectedTransactionCategory =
-                                              TransactionSource(
+                                              TransactionCategory(
                                                 label: value['label'],
                                                 icon: value['icon'],
                                               );
@@ -194,7 +195,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       onItemSelected: (value) {
                                         setState(() {
                                           selectedTransactionSource =
-                                              TransactionCategory(
+                                              TransactionSource(
                                                 label: value['label'],
                                                 icon: value['icon'],
                                               );
@@ -231,7 +232,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     decoration: BoxDecoration(
                       color: provider.isLoading
                           ? ThemeHelper.outline
-                          : ThemeHelper.secondary,
+                          : ThemeHelper.onSecondary,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Material(
@@ -355,10 +356,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                         ? "${transactionType.name.capitalize} Updated Successfully"
                                         : "${transactionType.name.capitalize} Added Successfully",
                                     style: ThemeHelper.bodyMedium!.copyWith(
-                                      color: ThemeHelper.onSecondary,
+                                      color: ThemeHelper.secondary,
                                     ),
                                   ),
-                                  backgroundColor: ThemeHelper.secondary,
+                                  backgroundColor: ThemeHelper.onSecondary,
                                 ),
                               );
                             }
@@ -370,9 +371,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                             children: [
                               Icon(
                                 provider.isLoading ? null : Icons.save,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondary,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                               SizedBox(width: 10),
                               provider.isLoading
@@ -387,7 +386,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                           .copyWith(
                                             color: Theme.of(
                                               context,
-                                            ).colorScheme.onSecondary,
+                                            ).colorScheme.secondary,
                                           ),
                                     ),
                             ],
@@ -417,7 +416,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           if (!isSelected) {
             setState(() {
               transactionType = type;
-              // Reset category and source when changing transaction type
               selectedTransactionCategory = null;
               selectedTransactionSource = null;
             });
@@ -429,15 +427,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           decoration: BoxDecoration(
             color: isSelected ? ThemeHelper.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: ThemeHelper.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [],
           ),
           child: Center(
             child: Text(
@@ -462,72 +451,47 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     required String? iconPath,
     required VoidCallback onTap,
   }) {
+    // ignore: unused_local_variable
     final bool hasSelection = label != null && label.isNotEmpty;
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
       child: Container(
-        height: 120,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: ThemeHelper.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: hasSelection ? ThemeHelper.primary : ThemeHelper.outline,
-            width: hasSelection ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: ThemeHelper.outline),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (hasSelection && iconPath != null)
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: ThemeHelper.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: SvgPicture.asset(
-                  iconPath,
-                  height: 24,
-                  width: 24,
-                  colorFilter: ColorFilter.mode(
-                    ThemeHelper.primary,
-                    BlendMode.srcIn,
+            Text(title, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            if (label != null && iconPath != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    iconPath,
+                    height: 24,
+                    width: 24,
+                    colorFilter: ColorFilter.mode(
+                      ThemeHelper.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               )
             else
-              Icon(
-                title == "Category"
-                    ? Icons.category_outlined
-                    : Icons.account_balance_wallet_outlined,
-                size: 32,
-                color: ThemeHelper.onSurfaceVariant.withOpacity(0.5),
-              ),
-
-            const SizedBox(height: 12),
-
-            Text(
-              hasSelection ? label : "Select $title",
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: hasSelection
-                    ? ThemeHelper.onSurface
-                    : ThemeHelper.onSurfaceVariant,
-                fontWeight: hasSelection ? FontWeight.w700 : FontWeight.normal,
-              ),
-            ),
+              Icon(Icons.add, color: ThemeHelper.primary),
           ],
         ),
       ),

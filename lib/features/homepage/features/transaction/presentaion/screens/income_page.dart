@@ -1,7 +1,6 @@
-
-import '../../../../../../config/theme_helper.dart';
-import 'transaction_source.dart';
-import 'transaction_category.dart';
+import 'package:expense_tracker/features/homepage/features/category/presenation/providers/category_provider.dart';
+import 'package:expense_tracker/ui/components/category_list_widget.dart';
+import 'package:expense_tracker/ui/components/segmented_toggle.dart';
 import 'package:flutter/material.dart';
 
 class IncomePage extends StatefulWidget {
@@ -12,13 +11,8 @@ class IncomePage extends StatefulWidget {
 }
 
 class _IncomePageState extends State<IncomePage> {
-  late bool isSource;
-  @override
-  void initState() {
-    super.initState();
-
-    isSource = false;
-  }
+  // 0 = Categories, 1 = Source
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,87 +20,25 @@ class _IncomePageState extends State<IncomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isSource = false;
-                    });
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: (isSource == false)
-                            ? BorderSide(width: 3, color: ThemeHelper.primary)
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Type',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: ThemeHelper.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Vertical divider between the two tabs
-              Container(
-                width: 1,
-                height: 40,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                color: Theme.of(context).dividerColor,
-              ),
-
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isSource = true;
-                    });
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: (isSource == true)
-                            ? BorderSide(width: 3, color: ThemeHelper.primary)
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Source',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: ThemeHelper.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          SegmentedToggle<int>(
+            options: const {0: 'Categories', 1: 'Source'},
+            selectedValue: _selectedIndex,
+            onValueChanged: (value) {
+              setState(() {
+                _selectedIndex = value;
+              });
+            },
           ),
-
-          (isSource == false)
-              ? Expanded(
-                  child: TransactionCategoryWidget(onItemSelected: (value) {}),
-                )
-              : Expanded(
-                  child: TransactionSourceWidget(
-                    onItemSelected: (value) {}),
-                ),
+          Expanded(
+            child: _selectedIndex == 0
+                ? const CategoryListWidget<IncomeCategoryProvider>(
+                    title: 'Categories',
+                    useOriginalColor: true,
+                  )
+                : const CategoryListWidget<SourceProvider>(title: 'Source'),
+          ),
         ],
       ),
     );
   }
 }
-
-

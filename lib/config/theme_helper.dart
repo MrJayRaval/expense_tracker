@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 class ThemeHelper {
   // Use nullable backing fields so getters can fall back to defaults during tests
   static ColorScheme? _colorScheme;
-  static TextTheme? _text_theme;
+  static TextTheme? _textTheme;
 
   /// Initialize theme colors - call this once in your app startup
   static void init(BuildContext context) {
     _colorScheme = Theme.of(context).colorScheme;
-    _text_theme = Theme.of(context).textTheme;
+    _textTheme = Theme.of(context).textTheme;
   }
 
   // Internal safe accessors that fall back to a default ThemeData when not initialized
   static ColorScheme get _cs => _colorScheme ?? ThemeData.light().colorScheme;
-  static TextTheme get _tt => _text_theme ?? ThemeData.light().textTheme;
+  static TextTheme get _tt => _textTheme ?? ThemeData.light().textTheme;
 
   // Color Scheme Accessors (use safe internal getters)
   static Color get primary => _cs.primary;

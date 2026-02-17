@@ -1,8 +1,8 @@
-import '../../data/repository/history_repository_impl.dart';
+import '../repository/history_repository.dart';
 import '../../../../../../ui/models/trasaction_details_model.dart';
 
 class GroupByDateUseCase {
-  final HistoryRepositoryImpl repository;
+  final HistoryRepository repository;
 
   GroupByDateUseCase({required this.repository});
 

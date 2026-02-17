@@ -1,12 +1,14 @@
 import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
 import 'package:expense_tracker/features/auth/presentation/screen/registration_page.dart';
 import 'package:expense_tracker/features/auth/features/create_profile/presentation/provider/profile_provider.dart';
+import 'package:expense_tracker/features/auth/features/create_profile/data/models/user_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 class MockAuthProvider extends Mock implements AuthProvider {}
+
 class MockProfileProvider extends Mock implements ProfileProvider {}
 
 Widget createWidgetUnderTest(
@@ -17,7 +19,9 @@ Widget createWidgetUnderTest(
     home: MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>.value(value: provider),
-        Provider<ProfileProvider>.value(value: profileProvider),
+        ChangeNotifierProvider<ProfileProvider>.value(
+          value: profileProvider,
+        ), // Fixed: use ChangeNotifierProvider if ProfileProvider is ChangeNotifier
       ],
       child: RegistrationPage(),
     ),
@@ -27,6 +31,12 @@ Widget createWidgetUnderTest(
 void main() {
   late MockAuthProvider mockAuth;
   late MockProfileProvider mockProfile;
+
+  setUpAll(() {
+    registerFallbackValue(
+      UserProfileModel(uid: 'uid', name: 'name', email: 'email'),
+    );
+  });
 
   setUp(() {
     mockAuth = MockAuthProvider();
@@ -55,7 +65,13 @@ void main() {
   ) async {
     await tester.pumpWidget(createWidgetUnderTest(mockAuth, mockProfile));
 
-    await tester.tap(find.text('Sign Up'));
+    // Wait for the widgets to settle
+    await tester.pumpAndSettle();
+
+    // Ensure 'Sign Up' button is visible before tapping
+    final signUpFinder = find.text('Sign Up');
+    await tester.ensureVisible(signUpFinder);
+    await tester.tap(signUpFinder);
     await tester.pumpAndSettle();
 
     expect(find.text('Enter Username'), findsOneWidget);
@@ -64,8 +80,8 @@ void main() {
     expect(find.text('Enter Confirm Password'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(1), 'ABC');
-    await tester.ensureVisible(find.text('Sign Up'));
-    await tester.tap(find.text('Sign Up'));
+    await tester.ensureVisible(signUpFinder);
+    await tester.tap(signUpFinder);
     await tester.pumpAndSettle();
     expect(find.text('Enter valid email'), findsOneWidget);
 
@@ -73,7 +89,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(1), 'abc@gmail.com');
     await tester.enterText(find.byType(TextFormField).at(2), '123456');
     await tester.enterText(find.byType(TextFormField).at(3), '123456');
-    await tester.tap(find.text('Sign Up'));
+    await tester.tap(signUpFinder);
     await tester.pump();
   });
 
@@ -84,13 +100,17 @@ void main() {
     when(() => mockAuth.error).thenReturn('Unable to sign up.');
 
     await tester.pumpWidget(createWidgetUnderTest(mockAuth, mockProfile));
+    await tester.pumpAndSettle();
+
+    final signUpFinder = find.text('Sign Up');
 
     await tester.enterText(find.byType(TextFormField).at(0), 'ABC');
     await tester.enterText(find.byType(TextFormField).at(1), 'abc@gmail.com');
     await tester.enterText(find.byType(TextFormField).at(2), '123456');
     await tester.enterText(find.byType(TextFormField).at(3), '123456');
 
-    await tester.tap(find.text('Sign Up'));
+    await tester.ensureVisible(signUpFinder);
+    await tester.tap(signUpFinder);
     await tester.pumpAndSettle();
 
     expect(find.text('Sign Up Failed'), findsOneWidget);

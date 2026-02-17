@@ -14,6 +14,11 @@ Widget createWidgetUnderTest(AuthProvider provider) {
       ThemeHelper.init(context);
       return child!;
     },
+    routes: {
+      '/dashboard': (context) => const SizedBox(),
+      '/forgot-password': (context) => const SizedBox(),
+      '/register': (context) => const SizedBox(),
+    },
     home: ChangeNotifierProvider<AuthProvider>.value(
       builder: (context, child) {
         ThemeHelper.init(context);
@@ -73,9 +78,7 @@ void main() {
 
   testWidgets('shows dialog when login fails', (WidgetTester tester) async {
     when(() => mockAuth.logIn(any(), any())).thenAnswer((_) async => false);
-    when(
-      () => mockAuth.error,
-    ).thenReturn('Invalid email or password.');
+    when(() => mockAuth.error).thenReturn('Invalid email or password.');
 
     await tester.pumpWidget(createWidgetUnderTest(mockAuth));
 

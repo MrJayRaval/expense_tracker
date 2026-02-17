@@ -1,16 +1,16 @@
 import 'package:expense_tracker/features/homepage/features/dashboard/presenation/Screens/dashboard_page.dart';
-import 'package:expense_tracker/features/homepage/features/transaction/presentaion/screens/add_transaction_page.dart';
 
 import '../../../../config/theme_helper.dart';
 import '../../features/history/presenation/Screens/history_page.dart';
-import '../../features/category/presenation/Screens/category_page.dart';
+import 'package:expense_tracker/features/homepage/features/expense/presentation/screens/expense_page.dart';
 import '../../features/history/presenation/providers/history_provider.dart';
 import '../providers/homepage_provider.dart';
-import 'test.dart';
-import '../../features/transaction/presentaion/screens/income_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/presentaion/screens/income_page.dart';
+import 'package:expense_tracker/features/settings/presentation/screens/settings_page.dart';
+import 'package:expense_tracker/features/auth/presentation/provider/auth_provider.dart';
+import 'package:expense_tracker/routes/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,12 +24,12 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _pages = const [
+  final List<Widget> _pages = [
     DashboardPage(),
     HistoryPage(),
     IncomePage(),
-    CategoryPage(),
-    TestingPage(text: 'Setting'),
+    ExpensePage(),
+    SettingsPage(),
   ];
 
   @override
@@ -49,43 +49,130 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: ThemeHelper.surface,
-      appBar: _buildAppBar(context),
-      drawer: _buildDrawer(context),
-      floatingActionButton: _buildFAB(),
-      body: _pages[_selectedIndex], // lazy load pages
+    return PopScope(
+      canPop: _selectedIndex == 0,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) {
+          return;
+        }
+
+        // Handle drawer if it's open
+        if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+          _scaffoldKey.currentState?.closeDrawer();
+          return;
+        }
+
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: ThemeHelper.surface,
+        appBar: _buildAppBar(context),
+        drawer: _buildDrawer(context),
+        floatingActionButton: _buildFAB(),
+        body: _pages[_selectedIndex], // lazy load pages
+      ),
     );
   }
 
   // ---------------- APP BAR ----------------
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    const titles = ['FinWise', 'History', 'Income', 'Categories', 'Settings'];
+    const titles = ['FinWise', 'History', 'Income', 'Expenses', 'Settings'];
+    final title = titles[_selectedIndex];
 
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+      backgroundColor: ThemeHelper.surface,
+      scrolledUnderElevation: 0,
+      elevation: 0,
+      centerTitle: false,
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: Icon(Icons.menu_rounded, color: ThemeHelper.onSurface),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+      ),
       title: Row(
         children: [
-          Image.asset('assets/logo.png', height: 24),
-          const SizedBox(width: 10),
+          if (_selectedIndex == 0) ...[
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: ThemeHelper.surface,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  'assets/logo.png',
+                  height: 32,
+                  width: 32,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
           Text(
-            titles[_selectedIndex],
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge!.copyWith(color: ThemeHelper.onSurface),
+            title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: ThemeHelper.onSurface,
+              letterSpacing: -0.5,
+            ),
           ),
         ],
       ),
+      actions: [
+        if (_selectedIndex == 0)
+          GestureDetector(
+            onTap: () {
+              // Navigate to profile or settings
+              setState(() {
+                _selectedIndex = 4; // Settings
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: ThemeHelper.outline.withValues(alpha: 0.5),
+                  width: 2,
+                ),
+              ),
+              child: Consumer<HomePageProvider>(
+                builder: (_, dashboard, __) {
+                  return CircleAvatar(
+                    radius: 16,
+                    backgroundColor: ThemeHelper.primaryContainer,
+                    child: Text(
+                      (dashboard.user?['name'] ?? 'U')
+                          .substring(0, 1)
+                          .toUpperCase(),
+                      style: TextStyle(
+                        color: ThemeHelper.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
     );
   }
 
   // ---------------- FAB ----------------
 
   Widget? _buildFAB() {
-    if (_selectedIndex == 3) return CategoryFAB();
-    if (_selectedIndex == 2) return AddTransactionFAB();
     return null;
   }
 
@@ -145,7 +232,7 @@ class _HomePageState extends State<HomePage> {
         _drawerTile(Icons.home, 'Dashboard', 0),
         _drawerTile(Icons.receipt_long, 'History', 1),
         _drawerTile(Icons.trending_up, 'Income', 2),
-        _drawerTile(Icons.category, 'Categories', 3),
+        _drawerTile(Icons.category, 'Expenses', 3),
         _drawerTile(Icons.settings, 'Settings', 4),
       ],
     );
@@ -188,8 +275,15 @@ class _HomePageState extends State<HomePage> {
           ).textTheme.titleMedium!.copyWith(color: ThemeHelper.error),
         ),
         onTap: () async {
-          await Hive.deleteFromDisk();
-          await FirebaseAuth.instance.signOut();
+          final authProvider = context.read<AuthProvider>();
+          await authProvider.signOut();
+          if (context.mounted) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.login,
+              (route) => false,
+            );
+          }
         },
       ),
     );

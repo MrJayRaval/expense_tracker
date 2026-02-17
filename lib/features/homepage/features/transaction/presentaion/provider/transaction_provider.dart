@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/homepage/features/transaction/domain/usecases/add_income_usecase.dart';
+import 'package:expense_tracker/features/homepage/features/transaction/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_tracker/ui/models/enum.dart';
 
 import '../../../../../../ui/models/trasaction_details_model.dart';
@@ -26,7 +26,7 @@ class TransactionProvider extends ChangeNotifier {
     bool success = false;
 
     try {
-      addTransactionUsecase(transactionType, transaction);
+      await addTransactionUsecase(transactionType, transaction);
       success = true;
       error = null;
     } catch (e) {

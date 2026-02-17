@@ -5,7 +5,7 @@ import '../../features/create_profile/presentation/provider/profile_provider.dar
 import '../../../../ui/components/button.dart';
 import '../../../../ui/components/textbox.dart';
 import '../../../../routes/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -183,7 +183,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               );
                           if (success) {
                             // get the newly created user
-                            final user = FirebaseAuth.instance.currentUser;
+                            final user = context
+                                .read<AuthProvider>()
+                                .currentUser;
 
                             if (user != null) {
                               // create profile in Firestore
@@ -202,7 +204,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                   context.read<ProfileProvider>().error ??
                                       'Failed to create user profile.',
                                 );
-                                await FirebaseAuth.instance.signOut();
+                                await context.read<AuthProvider>().signOut();
                                 if (mounted) {
                                   Navigator.popUntil(
                                     context,
@@ -211,9 +213,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 }
                               } else {
                                 if (mounted) {
-                                  Navigator.popUntil(
+                                  Navigator.pushNamedAndRemoveUntil(
                                     context,
-                                    (route) => route.isFirst,
+                                    AppRoutes.dashboard,
+                                    (route) => false,
                                   );
                                 }
                               }
