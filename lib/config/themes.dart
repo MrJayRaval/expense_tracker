@@ -15,7 +15,7 @@ var lightTheme = ThemeData(
 
   // Secondary
   secondary: Color(0xFF007E6E), // Teal 500
-  onSecondary: Color(0xFFFFFFFF),
+  onSecondary: Color.fromARGB(255, 189, 243, 197),
   secondaryContainer: Color(0xFFCCFBF1),
   onSecondaryContainer: Color(0xFF042F2E),
 

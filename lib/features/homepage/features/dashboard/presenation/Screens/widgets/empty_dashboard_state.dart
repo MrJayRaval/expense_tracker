@@ -83,7 +83,7 @@ class EmptyDashboardState extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ThemeHelper.secondary,
-                    foregroundColor: ThemeHelper.onSecondary,
+                    foregroundColor: ThemeHelper.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -97,7 +97,7 @@ class EmptyDashboardState extends StatelessWidget {
                       Text(
                         'Add First Transaction',
                         style: ThemeHelper.titleMedium?.copyWith(
-                          color: ThemeHelper.onSecondary,
+                          color: ThemeHelper.surface,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

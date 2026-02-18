@@ -103,7 +103,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 child: Column(
                   children: [
                     CustTextField(
-                      autoFocus: true,
+                      autoFocus: false,
                       label: 'Name',
                       controller: _userName,
                       validator: (value) {
